@@ -12,6 +12,8 @@ import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.Student;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class DockerService {
 
@@ -69,12 +71,18 @@ public class DockerService {
 
     // 3. 컨테이너 삭제 (중지 → 삭제)
     public void removeContainer(String containerId) {
+        Optional<DockerContainer> dockerContainer = dockerContainerRepository.findById(containerId);
         //데이터 베이스 확인하고 컨테이너 아이디 있으면 삭제하고
-        try {
-            dockerClient.stopContainerCmd(containerId).exec();  // 실패해도 넘어감
-        } catch (NotModifiedException e) {
-            // 이미 중지된 상태, 무시
+        if(dockerContainer.isPresent()){
+            //데이터 베이스 확인하고 컨테이너 아이디 있으면 삭제하고
+            try {
+                dockerClient.stopContainerCmd(containerId).exec();// 실패해도 넘어감
+            } catch (NotModifiedException e) {
+                // 이미 중지된 상태, 무시
+            }
+            dockerClient.removeContainerCmd(containerId).exec();
+
+            dockerContainerRepository.deleteById(containerId);
         }
-        dockerClient.removeContainerCmd(containerId).exec();
     }
 }

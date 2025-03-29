@@ -1,4 +1,4 @@
-package org.mjuecs.mjuecs;
+package org.mjuecs.mjuecs.Repository;
 
 import org.mjuecs.mjuecs.domain.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
