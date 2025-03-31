@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.mjuecs.mjuecs.Repository.StudentRepository;
 import org.mjuecs.mjuecs.domain.Student;
 import org.mjuecs.mjuecs.service.DockerService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class DockerController {
     private final StudentRepository studentRepository;
 
     @PostMapping("/run")
-    public String runContainer(@RequestParam String image) {
+    public ResponseEntity<?> runContainer(@RequestParam String image) {
         String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Student> student = studentRepository.findById(studentId);
         return dockerService.createAndStartContainer(image,student.get());
