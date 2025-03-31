@@ -27,7 +27,7 @@ public class DockerController {
         return dockerService.createAndStartContainer(image,student.get());
     }
 
-    @PostMapping("/custum/run")
+    @PostMapping("/custom/run")
     public ResponseEntity<?> runCustomContainer(@RequestBody ContainerDto dto) {
         String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Student> student = studentRepository.findById(studentId);
