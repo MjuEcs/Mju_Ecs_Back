@@ -10,10 +10,13 @@ import org.mjuecs.mjuecs.DockerClientFactory;
 import org.mjuecs.mjuecs.Repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.Student;
+import org.mjuecs.mjuecs.dto.ContainerDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -33,10 +36,30 @@ public class DockerService {
             dockerClient.inspectImageCmd(imageName).exec();
         } catch (NotFoundException e) {
             System.out.println("이미지가 없어서 pull 중...");
-            dockerClient.pullImageCmd(imageName)
-                    .start();
-//                    .forEachRemaining(PullResponseItem::toString);
+            try {
+                dockerClient.pullImageCmd(imageName)
+                        .start()
+                        .awaitCompletion(); // ✅ pull 완료 대기!
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("이미지 pull 중 인터럽트 발생", ie);
+            }
         }
+    }
+
+
+    private ExposedPort guessDefaultPortByImage(String imageName) {
+        imageName = imageName.toLowerCase();
+
+        if (imageName.contains("mysql")) return ExposedPort.tcp(3306);
+        if (imageName.contains("postgres")) return ExposedPort.tcp(5432);
+        if (imageName.contains("nginx")) return ExposedPort.tcp(80);
+        if (imageName.contains("redis")) return ExposedPort.tcp(6379);
+        if (imageName.contains("mongo")) return ExposedPort.tcp(27017);
+        if (imageName.contains("ubuntu") || imageName.contains("kali")) return ExposedPort.tcp(22); // SSH 등
+
+        // 기본 포트 없으면 fallback (임시 포트 사용 or 예외 처리)
+        return ExposedPort.tcp(8080);
     }
 
     // 2. 컨테이너 생성 및 시작
@@ -66,11 +89,55 @@ public class DockerService {
             dockerContainer.setStudent(student);
             dockerContainerRepository.save(dockerContainer);
 
-            return ResponseEntity.ok("컨테이너 생성");
-//            return container.getId();
+            return ResponseEntity.ok(container.getId());
         }
         return ResponseEntity.ok("컨테이너 생성 불가");
     }
+
+    public ResponseEntity<?> createCustomContainer(ContainerDto containerDto,Student student) {
+
+        if(dockerContainerRepository.findByStudent(student).size()<2) {
+            String image = containerDto.getImageName();
+            Map<String, String> envVars = containerDto.getEnv();
+            int hostPort = containerDto.getHostPort();
+
+            // 1. 이미지 없으면 pull
+            pullImageIfNotExists(image);
+
+            // 2. 포트 바인딩 설정 (예: 3306 or 22 or 8080 depending on image)
+            ExposedPort containerPort = guessDefaultPortByImage(image);
+            Ports.Binding binding = Ports.Binding.bindPort(hostPort);
+            HostConfig hostConfig = HostConfig.newHostConfig()
+                    .withPortBindings(new PortBinding(binding, containerPort));
+
+            // 3. env 리스트 변환
+            List<String> envList = envVars.entrySet().stream()
+                    .map(entry -> entry.getKey() + "=" + entry.getValue())
+                    .toList();
+
+            // 4. 컨테이너 생성
+            CreateContainerResponse container = dockerClient.createContainerCmd(image)
+                    .withExposedPorts(containerPort)
+                    .withEnv(envList)
+                    .withHostConfig(hostConfig)
+                    .withCmd(containerDto.getCmd())  // ubuntu 등에는 "sleep" 같은 cmd 필요
+                    .exec();
+
+            dockerClient.startContainerCmd(container.getId()).exec();
+
+            DockerContainer dockerContainer = new DockerContainer();
+            dockerContainer.setContainerId(container.getId());
+            dockerContainer.setImage(image);
+            dockerContainer.setStudent(student);
+            dockerContainerRepository.save(dockerContainer);
+
+            return ResponseEntity.ok(container.getId());
+        }
+        return ResponseEntity.ok("컨테이너 생성 불가");
+    }
+
+
+
 
     // 3. 컨테이너 삭제 (중지 → 삭제)
     public ResponseEntity<?> removeContainer(String containerId) {
