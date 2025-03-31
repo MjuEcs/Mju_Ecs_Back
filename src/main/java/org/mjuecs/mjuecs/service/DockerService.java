@@ -10,6 +10,8 @@ import org.mjuecs.mjuecs.DockerClientFactory;
 import org.mjuecs.mjuecs.Repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.Student;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -38,7 +40,7 @@ public class DockerService {
     }
 
     // 2. 컨테이너 생성 및 시작
-    public String createAndStartContainer(String imageName, Student student) {
+    public ResponseEntity<?> createAndStartContainer(String imageName, Student student) {
         //학생당 컨테이너가 2개 이상 생성불가
         if(dockerContainerRepository.findByStudent(student).size()<2) {
             pullImageIfNotExists(imageName);
@@ -64,13 +66,14 @@ public class DockerService {
             dockerContainer.setStudent(student);
             dockerContainerRepository.save(dockerContainer);
 
-            return container.getId();
+            return ResponseEntity.ok("컨테이너 생성");
+//            return container.getId();
         }
-        return "컨테이너 생성 불가";
+        return ResponseEntity.ok("컨테이너 생성 불가");
     }
 
     // 3. 컨테이너 삭제 (중지 → 삭제)
-    public void removeContainer(String containerId) {
+    public ResponseEntity<?> removeContainer(String containerId) {
         Optional<DockerContainer> dockerContainer = dockerContainerRepository.findById(containerId);
         //데이터 베이스 확인하고 컨테이너 아이디 있으면 삭제하고
         if(dockerContainer.isPresent()){
@@ -83,6 +86,9 @@ public class DockerService {
             dockerClient.removeContainerCmd(containerId).exec();
 
             dockerContainerRepository.deleteById(containerId);
+
+            return ResponseEntity.ok("컨테이너 삭제 완료");
         }
+        return ResponseEntity.status(404).body("삭제할 컨테이너 찾을 수 없음");
     }
 }
