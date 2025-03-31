@@ -3,6 +3,7 @@ package org.mjuecs.mjuecs.controller;
 import lombok.RequiredArgsConstructor;
 import org.mjuecs.mjuecs.Repository.StudentRepository;
 import org.mjuecs.mjuecs.domain.Student;
+import org.mjuecs.mjuecs.dto.ContainerDto;
 import org.mjuecs.mjuecs.service.DockerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
@@ -24,6 +25,13 @@ public class DockerController {
         String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Student> student = studentRepository.findById(studentId);
         return dockerService.createAndStartContainer(image,student.get());
+    }
+
+    @PostMapping("/custum/run")
+    public ResponseEntity<?> runCustomContainer(@RequestBody ContainerDto dto) {
+        String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Student> student = studentRepository.findById(studentId);
+        return dockerService.createCustomContainer(dto,student.get());
     }
 
     @DeleteMapping("/remove")
