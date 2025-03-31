@@ -1,0 +1,45 @@
+{
+    "ubuntu" : {
+        "image": "ubuntu:22.04",
+        "port": 22,
+        "env": {}
+    },
+    "mysql" : {
+        "image": "mysql",
+        "port": 3306,
+        "env": {
+            "MYSQL_ROOT_PASSWORD": {
+                "value": null,
+                "required": true
+            },
+            "MYSQL_DATABASE": {
+                "value": null,
+                "required": false
+            },
+            "MYSQL_USER": {
+                "value": null,
+                "required": false
+            },
+            "MYSQL_PASSWORD": {
+                "value": null,
+                "required": false
+            },
+            "MYSQL_ALLOW_EMPTY_PASSWORD": {
+                "value": null,
+                "required": false
+            },
+            "MYSQL_RANDOM_ROOT_PASSWORD": {
+                "value": null,
+                "required": false
+            },
+            "MYSQL_ONETIME_PASSWORD": {
+                "value": null,
+                "required": false
+            },
+            "MYSQL_INITDB_SKIP_TZINFO": {
+                "value": null,
+                "required": false
+            }
+        }
+    }
+}
