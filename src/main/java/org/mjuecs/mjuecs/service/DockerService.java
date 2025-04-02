@@ -5,9 +5,8 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.*;
-import lombok.RequiredArgsConstructor;
 import org.mjuecs.mjuecs.DockerClientFactory;
-import org.mjuecs.mjuecs.Repository.DockerContainerRepository;
+import org.mjuecs.mjuecs.repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.Student;
 import org.mjuecs.mjuecs.dto.ContainerDto;
@@ -63,7 +62,7 @@ public class DockerService {
     }
 
     // 2. 컨테이너 생성 및 시작
-    public ResponseEntity<?> createAndStartContainer(String imageName, Student student) {
+    public ResponseEntity<?> createContainer(String imageName, Student student) {
         //학생당 컨테이너가 2개 이상 생성불가
         if(dockerContainerRepository.findByStudent(student).size()<2) {
             pullImageIfNotExists(imageName);
@@ -117,10 +116,13 @@ public class DockerService {
 
             // 4. 컨테이너 생성
             CreateContainerResponse container = dockerClient.createContainerCmd(image)
+                    .withName("MjuEcs-"+student.getStudentId()+"-"+(dockerContainerRepository.findByStudent(student).size()+1))
                     .withExposedPorts(containerPort)
                     .withEnv(envList)
                     .withHostConfig(hostConfig)
-                    .withCmd(containerDto.getCmd())  // ubuntu 등에는 "sleep" 같은 cmd 필요
+                    .withCmd(containerDto.getCmd())
+                    .withTty(true)              // ✅ TTY 설정 추가
+                    .withStdinOpen(true)
                     .exec();
 
             dockerClient.startContainerCmd(container.getId()).exec();
@@ -156,6 +158,6 @@ public class DockerService {
 
             return ResponseEntity.ok("컨테이너 삭제 완료");
         }
-        return ResponseEntity.status(404).body("삭제할 컨테이너 찾을 수 없음");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("삭제할 컨테이너 찾을 수 없음");
     }
 }
