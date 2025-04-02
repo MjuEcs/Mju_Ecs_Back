@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>xterm 테스트</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <style>
+        body { margin: 0; background: #1e1e1e; }
+        #terminal { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body>
+<div id="terminal"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+<script>
+    // 터미널 객체 초기화
+    const term = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        theme: {
+            background: '#1e1e1e',
+            foreground: '#ffffff'
+        }
+    });
+    term.open(document.getElementById('terminal'));
+
+    // 👉 여기에 너의 실제 컨테이너 ID 넣기
+    const containerId = "79b8e31647376ed0e936f44796723a1049c3d6e87b95bc6eafbc7774900bf1e1";
+
+    // WebSocket 연결
+    const socket = new WebSocket(`ws://localhost:8080/ws/terminal/${containerId}`);
+
+    // 서버에서 출력된 결과 터미널에 출력
+    socket.onmessage = (e) => {
+        console.log("📥 서버 응답:", e.data); // << 여기에서 hi 출력이 보이는지 확인
+        term.write(e.data);
+    };
+
+    // 사용자가 터미널에 입력한 값 서버로 전송
+    // ✅ 사용자 입력 → 서버 + 화면 echo
+    term.onData(data => {
+        socket.send(data);
+        if (data === '\r') {
+            term.write('\r\n');  // 커서를 다음 줄로 내림
+        } else {
+            term.write(data);
+        }
+    });
+
+    socket.onopen = () => {
+        term.writeln("✅ 연결 성공! 컨테이너와 연결되었습니다.");
+    };
+
+    socket.onerror = (e) => {
+        term.writeln("❌ 연결 실패: " + e.message);
+    };
+
+    socket.onclose = () => {
+        term.writeln("🔌 연결이 종료되었습니다.");
+    };
+</script>
+</body>
+</html>
