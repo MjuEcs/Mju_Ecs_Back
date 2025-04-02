@@ -36,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### h2 database ###
+h2
