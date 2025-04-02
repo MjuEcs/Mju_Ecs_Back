@@ -1,12 +1,11 @@
 package org.mjuecs.mjuecs.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.mjuecs.mjuecs.Repository.StudentRepository;
+import org.mjuecs.mjuecs.repository.StudentRepository;
 import org.mjuecs.mjuecs.domain.Student;
 import org.mjuecs.mjuecs.dto.ContainerDto;
 import org.mjuecs.mjuecs.service.DockerService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +23,7 @@ public class DockerController {
     public ResponseEntity<?> runContainer(@RequestParam String image) {
         String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Student> student = studentRepository.findById(studentId);
-        return dockerService.createAndStartContainer(image,student.get());
+        return dockerService.createContainer(image,student.get());
     }
 
     @PostMapping("/custom/run")
@@ -35,8 +34,7 @@ public class DockerController {
     }
 
     @DeleteMapping("/remove")
-    public String removeContainer(@RequestParam String id) {
-        dockerService.removeContainer(id);
-        return "삭제 완료: " + id;
+    public ResponseEntity<?> removeContainer(@RequestParam String id) {
+        return dockerService.removeContainer(id);
     }
 }
