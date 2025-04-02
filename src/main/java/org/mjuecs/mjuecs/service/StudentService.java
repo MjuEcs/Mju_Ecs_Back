@@ -2,7 +2,7 @@ package org.mjuecs.mjuecs.service;
 
 import com.github.dockerjava.api.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
-import org.mjuecs.mjuecs.Repository.StudentRepository;
+import org.mjuecs.mjuecs.repository.StudentRepository;
 import org.mjuecs.mjuecs.domain.Student;
 import org.mjuecs.mjuecs.dto.LoginDto;
 import org.mjuecs.mjuecs.jwt.JwtUtil;
@@ -29,7 +29,6 @@ public class StudentService {
         if (!isVerified) {
             throw new UnauthorizedException("외부 인증 실패");
         }
-
         // 2. 사용자 정보 DB 저장 (없을 경우만)
         Student loggedIn = studentRepository.findById(dto.getStudentId())
                 .orElseGet(() -> {
@@ -43,11 +42,11 @@ public class StudentService {
         studentRepository.save(loggedIn);
 
         // 3. JWT 발급
-        return jwtToken.createJwt(dto.getStudentId(), dto.getName(), 86400000L);
+        return jwtToken.createJwt(dto.getStudentId(), dto.getName(), 86400000L);//하루치 토큰 기간
     }
 
     private boolean verifyWithExternalAuthServer(LoginDto dto) {
-        String url = "https://sso1.mju.ac.kr/mju/userCheck.do"; // ✨ 여기를 너의 실제 인증 서버 주소로 바꿔줘
+        String url = "https://sso1.mju.ac.kr/mju/userCheck.do";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
