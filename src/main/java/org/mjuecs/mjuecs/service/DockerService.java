@@ -8,7 +8,7 @@ import org.mjuecs.mjuecs.DockerClientFactory;
 import org.mjuecs.mjuecs.Repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.Student;
-import org.mjuecs.mjuecs.dto.ContainerDto;
+import org.mjuecs.mjuecs.dto.RunContainerRequestDto;
 import org.mjuecs.mjuecs.exception.ContainerLimitExceededException;
 import org.springframework.stereotype.Service;
 
@@ -97,7 +97,7 @@ public class DockerService {
         return container.getId();
     }
 
-    public String createCustomContainer(ContainerDto containerDto, Student student) {
+    public String createCustomContainer(RunContainerRequestDto containerDto, Student student) {
         if (dockerContainerRepository.findByStudent(student).size() >= 2) {
             throw new ContainerLimitExceededException("학생당 최대 2개의 컨테이너만 생성 가능합니다");
         }

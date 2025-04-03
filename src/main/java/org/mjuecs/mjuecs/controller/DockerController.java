@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.mjuecs.mjuecs.Repository.StudentRepository;
 import org.mjuecs.mjuecs.domain.Student;
-import org.mjuecs.mjuecs.dto.ContainerDto;
+import org.mjuecs.mjuecs.dto.RunContainerRequestDto;
 import org.mjuecs.mjuecs.exception.StudentNotFoundException;
 import org.mjuecs.mjuecs.service.DockerService;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class DockerController {
 
 
     @PostMapping("/run")
-    public ResponseEntity<String> runCustomContainer(@RequestBody ContainerDto dto) {
+    public ResponseEntity<String> runCustomContainer(@RequestBody RunContainerRequestDto dto) {
         String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("학생 정보를 찾을 수 없습니다"));

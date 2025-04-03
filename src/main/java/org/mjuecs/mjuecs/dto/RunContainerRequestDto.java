@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class ContainerDto {
+public class RunContainerRequestDto {
     private String imageName;
     private int hostPort;
     private Map<String, String> env;
