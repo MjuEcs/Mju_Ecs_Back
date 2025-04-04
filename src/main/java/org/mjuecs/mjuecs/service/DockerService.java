@@ -46,21 +46,6 @@ public class DockerService {
         }
     }
 
-
-    private ExposedPort guessDefaultPortByImage(String imageName) {
-        imageName = imageName.toLowerCase();
-
-        if (imageName.contains("mysql")) return ExposedPort.tcp(3306);
-        if (imageName.contains("postgres")) return ExposedPort.tcp(5432);
-        if (imageName.contains("nginx")) return ExposedPort.tcp(80);
-        if (imageName.contains("redis")) return ExposedPort.tcp(6379);
-        if (imageName.contains("mongo")) return ExposedPort.tcp(27017);
-        if (imageName.contains("ubuntu") || imageName.contains("kali")) return ExposedPort.tcp(22); // SSH 등
-
-        // 기본 포트 없으면 fallback (임시 포트 사용 or 예외 처리)
-        return ExposedPort.tcp(8080);
-    }
-
     // 2. 컨테이너 생성 및 시작
     public ResponseEntity<?> createContainer(String imageName, Student student) {
         //학생당 컨테이너가 2개 이상 생성불가
@@ -93,35 +78,38 @@ public class DockerService {
         return ResponseEntity.ok("컨테이너 생성 불가");
     }
 
-    public ResponseEntity<?> createCustomContainer(ContainerDto containerDto,Student student) {
-
-        if(dockerContainerRepository.findByStudent(student).size()<2) {
+    public String createCustomContainer(ContainerDto containerDto, Student student) {
+        if (dockerContainerRepository.findByStudent(student).size() < 2) {
             String image = containerDto.getImageName();
             Map<String, String> envVars = containerDto.getEnv();
             int hostPort = containerDto.getHostPort();
 
-            // 1. 이미지 없으면 pull
             pullImageIfNotExists(image);
 
-            // 2. 포트 바인딩 설정 (예: 3306 or 22 or 8080 depending on image)
-            ExposedPort containerPort = guessDefaultPortByImage(image);
-            Ports.Binding binding = Ports.Binding.bindPort(hostPort);
-            HostConfig hostConfig = HostConfig.newHostConfig()
-                    .withPortBindings(new PortBinding(binding, containerPort));
-
-            // 3. env 리스트 변환
             List<String> envList = envVars.entrySet().stream()
                     .map(entry -> entry.getKey() + "=" + entry.getValue())
                     .toList();
 
-            // 4. 컨테이너 생성
+            HostConfig hostConfig;
+            if (hostPort > 0) {
+                // 명시적 포트 요청 시에만 포트 바인딩 수행
+                ExposedPort containerPort = ExposedPort.tcp(hostPort);
+                Ports.Binding binding = Ports.Binding.bindPort(hostPort);
+                hostConfig = HostConfig.newHostConfig()
+                        .withPortBindings(new PortBinding(binding, containerPort));
+            } else {
+                hostConfig = HostConfig.newHostConfig();
+            }
+
             CreateContainerResponse container = dockerClient.createContainerCmd(image)
-                    .withName("MjuEcs-"+student.getStudentId()+"-"+(dockerContainerRepository.findByStudent(student).size()+1))
-                    .withExposedPorts(containerPort)
+                    .withName("MjuEcs-" + student.getStudentId() + "-" + (dockerContainerRepository.findByStudent(student).size() + 1))
                     .withEnv(envList)
                     .withHostConfig(hostConfig)
                     .withCmd(containerDto.getCmd())
-                    .withTty(true)              // ✅ TTY 설정 추가
+                    .withAttachStdin(true)
+                    .withAttachStdout(true)
+                    .withAttachStderr(true)
+                    .withTty(true)
                     .withStdinOpen(true)
                     .exec();
 
@@ -133,12 +121,10 @@ public class DockerService {
             dockerContainer.setStudent(student);
             dockerContainerRepository.save(dockerContainer);
 
-            return ResponseEntity.ok(container.getId());
+            return container.getId();
         }
-        return ResponseEntity.ok("컨테이너 생성 불가");
+        return "컨테이너 생성 불가";
     }
-
-
 
 
     // 3. 컨테이너 삭제 (중지 → 삭제)
