@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,85 +49,37 @@ public class DockerService {
         }
     }
 
-    // 2. 컨테이너 생성 및 시작
-    public ResponseEntity<?> createContainer(String imageName, Student student) {
-        //학생당 컨테이너가 2개 이상 생성불가
-        if(dockerContainerRepository.findByStudent(student).size()<2) {
-            pullImageIfNotExists(imageName);
 
-            ExposedPort containerPort = ExposedPort.tcp(80);
-            Ports.Binding hostPortBinding = Ports.Binding.bindPort(8081);  // localhost:8081
+public String createCustomContainer(ContainerDto dto, Student student) {
+    if (dockerContainerRepository.findByStudent(student).size() < 2) {
+        pullImageIfNotExists(dto.getImageName());
 
-            HostConfig hostConfig = HostConfig.newHostConfig()
-                    .withPortBindings(new PortBinding(hostPortBinding, containerPort));
+        CreateContainerResponse container = dockerClient.createContainerCmd(dto.getImageName())
+                .withName("MjuEcs-" + student.getStudentId() + "-" + System.currentTimeMillis())
+                .withEnv(dto.getEnv().entrySet().stream()
+                        .map(e -> e.getKey() + "=" + e.getValue()).toList())
+                .withHostConfig(HostConfig.newHostConfig())
+                .withCmd(dto.getCmd())
+                .withAttachStdin(true)
+                .withAttachStdout(true)
+                .withAttachStderr(true)
+                .withTty(true)
+                .withStdinOpen(true)
+                .exec();
 
-            CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                    .withName("MjuEcs-container-" + System.currentTimeMillis()) // 이름 겹치지 않게
-                    .withExposedPorts(containerPort)
-                    .withHostConfig(hostConfig)
-                    .exec();
+        dockerClient.startContainerCmd(container.getId()).exec();
 
-            dockerClient.startContainerCmd(container.getId()).exec();
-
-            //컨테이너 정보 저장
-            DockerContainer dockerContainer = new DockerContainer();
+        DockerContainer dockerContainer = new DockerContainer();
             dockerContainer.setContainerId(container.getId());
-            dockerContainer.setImage(imageName);
+            dockerContainer.setImage(dto.getImageName());
             dockerContainer.setStudent(student);
             dockerContainerRepository.save(dockerContainer);
 
-            return ResponseEntity.ok(container.getId());
-        }
-        return ResponseEntity.ok("컨테이너 생성 불가");
+
+        return container.getId(); // ✅ 사용자에게 URL 제공
     }
-
-    public String createCustomContainer(ContainerDto containerDto, Student student) {
-        if (dockerContainerRepository.findByStudent(student).size() < 2) {
-            String image = containerDto.getImageName();
-            Map<String, String> envVars = containerDto.getEnv();
-            int hostPort = containerDto.getHostPort();
-
-            pullImageIfNotExists(image);
-
-            List<String> envList = envVars.entrySet().stream()
-                    .map(entry -> entry.getKey() + "=" + entry.getValue())
-                    .toList();
-
-            HostConfig hostConfig;
-            if (hostPort > 0) {
-                // 명시적 포트 요청 시에만 포트 바인딩 수행
-                ExposedPort containerPort = ExposedPort.tcp(hostPort);
-                Ports.Binding binding = Ports.Binding.bindPort(hostPort);
-                hostConfig = HostConfig.newHostConfig()
-                        .withPortBindings(new PortBinding(binding, containerPort));
-            } else {
-                hostConfig = HostConfig.newHostConfig();
-            }
-
-            CreateContainerResponse container = dockerClient.createContainerCmd(image)
-                    .withName("MjuEcs-" + student.getStudentId() + "-" + (dockerContainerRepository.findByStudent(student).size() + 1))
-                    .withEnv(envList)
-                    .withHostConfig(hostConfig)
-                    .withCmd(containerDto.getCmd())
-                    .withAttachStdin(true)
-                    .withAttachStdout(true)
-                    .withAttachStderr(true)
-                    .withTty(true)
-                    .withStdinOpen(true)
-                    .exec();
-
-            dockerClient.startContainerCmd(container.getId()).exec();
-
-            DockerContainer dockerContainer = new DockerContainer();
-            dockerContainer.setContainerId(container.getId());
-            dockerContainer.setImage(image);
-            dockerContainer.setStudent(student);
-            dockerContainerRepository.save(dockerContainer);
-
-            return container.getId();
-        }
-        return "컨테이너 생성 불가";
-    }
+    return "컨테이너 생성 불가";
+}
 
 
     // 3. 컨테이너 삭제 (중지 → 삭제)
