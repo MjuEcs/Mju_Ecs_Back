@@ -83,7 +83,7 @@ public class DockerService {
     //컨테이너 삭제
     public ResponseEntity<?> startContainer(String containerId,Student student) {
         Optional<DockerContainer> dockerContainer = dockerContainerRepository.findById(containerId);
-        if (student.getStudentId().equals(dockerContainer.get().getStudent())) {
+        if (student.equals(dockerContainer.get().getStudent())) {
             if (dockerContainer.isPresent()) {
                 try {
                     dockerClient.startContainerCmd(containerId).exec();
@@ -99,7 +99,7 @@ public class DockerService {
     //컨테이너 중지
     public ResponseEntity<?> stopContainer(String containerId,Student student) {
         Optional<DockerContainer> dockerContainer = dockerContainerRepository.findById(containerId);
-        if (student.getStudentId().equals(dockerContainer.get().getStudent())) {
+        if (student.equals(dockerContainer.get().getStudent())) {
             if (dockerContainer.isPresent()) {
                 try {
                     dockerClient.stopContainerCmd(containerId).exec();
@@ -117,7 +117,7 @@ public class DockerService {
     //컨테이너 재시작
     public ResponseEntity<?> restartContainer(String containerId,Student student) {
         Optional<DockerContainer> dockerContainer = dockerContainerRepository.findById(containerId);
-        if (student.getStudentId().equals(dockerContainer.get().getStudent())) {
+        if (student.equals(dockerContainer.get().getStudent())) {
             if (dockerContainer.isPresent()) {
                 try {
                     dockerClient.restartContainerCmd(containerId).exec();
@@ -135,7 +135,7 @@ public class DockerService {
     public ResponseEntity<?> removeContainer(String containerId,Student student) {
         Optional<DockerContainer> dockerContainer = dockerContainerRepository.findById(containerId);
         //컨테이너 주인이 맞는지 유효성 검증
-        if (student.getStudentId().equals(dockerContainer.get().getStudent())) {
+        if (student.equals(dockerContainer.get().getStudent())) {
             if (dockerContainer.isPresent()) {
                 //데이터 베이스 확인하고 컨테이너 아이디 있으면 삭제하고
                 try {
