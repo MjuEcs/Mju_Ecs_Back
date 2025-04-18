@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>TTYD 터미널</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css">
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.min.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: black;
+        }
+        #terminal {
+            width: 100%;
+            height: 100%;
+        }
+        #fakeInput {
+            position: absolute;
+            top: -100px;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="terminal"></div>
+<input id="fakeInput" />
+<script>
+    const term = new Terminal({
+        cursorBlink: true,
+        fontFamily: 'monospace',
+        fontSize: 14,
+        convertEol: true,
+        theme: {
+            background: '#000000',
+            foreground: '#ffffff'
+        }
+    });
+    term.open(document.getElementById('terminal'));
+
+    const socket = new WebSocket(`ws://${location.host}/ws`);
+    socket.binaryType = 'arraybuffer';
+
+    socket.onopen = () => term.writeln("🟢 연결되었습니다.");
+    socket.onmessage = (e) => term.write(new TextDecoder().decode(e.data));
+    socket.onclose = () => term.writeln("\n🔌 연결이 종료되었습니다.");
+
+    const fakeInput = document.getElementById('fakeInput');
+    fakeInput.focus();
+
+    // 입력 전달 및 표시
+    fakeInput.addEventListener('input', () => {
+        const val = fakeInput.value;
+        if (val.length > 0) {
+            term.write(val);
+            socket.send(new TextEncoder().encode(val));
+            fakeInput.value = '';
+        }
+    });
+
+    // 터미널 클릭 시 포커스 유지
+    document.getElementById('terminal').addEventListener('click', () => {
+        fakeInput.focus();
+    });
+</script>
+</body>
+</html>
