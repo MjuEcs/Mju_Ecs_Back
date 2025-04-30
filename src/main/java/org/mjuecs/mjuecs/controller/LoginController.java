@@ -1,9 +1,11 @@
 package org.mjuecs.mjuecs.controller;
 
 import com.github.dockerjava.api.exception.UnauthorizedException;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.mjuecs.mjuecs.dto.LoginDto;
 import org.mjuecs.mjuecs.service.StudentService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,7 +24,13 @@ public class LoginController {
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
         try {
             String token = studentService.login(loginDto);
-            return ResponseEntity.ok(Map.of("token", "Bearer "+token));
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setMaxAge(86400000);
+            cookie.setHttpOnly(true);
+
+//            return ResponseEntity.ok(Map.of("token", "Bearer " + token)).header(HttpHeaders.SET_COOKIE, cookie.toString());
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(Map.of("token", "Bearer " + token));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
         }
