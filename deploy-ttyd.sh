@@ -14,6 +14,8 @@ docker run -d \
   --name ttyd-proxy-$PORT \
   -p $PORT:7681 \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  --env LANG=ko_KR.UTF-8 \
+  --env LC_ALL=ko_KR.UTF-8 \
   --env TERM=xterm-256color \
   my-ttyd-docker \
-  ttyd --writable docker exec -it "$CONTAINER_ID" bash
+  ttyd --writable env LANG=ko_KR.UTF-8 LC_ALL=ko_KR.UTF-8 TERM=xterm-256color docker exec -it "$CONTAINER_ID" bash
