@@ -2,7 +2,6 @@
 package org.mjuecs.mjuecs.config;
 
 import lombok.RequiredArgsConstructor;
-import org.mjuecs.mjuecs.component.TerminalProcessBridge;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -13,11 +12,11 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @RequiredArgsConstructor
 public class WebSocketBridgeConfig implements WebSocketConfigurer {
 
-    private final TerminalProcessBridge terminalProcessBridge;
+//    private final TerminalProcessBridge terminalProcessBridge;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(terminalProcessBridge, "/ws/bridge")
-                .setAllowedOrigins("*");
+//        registry.addHandler(terminalProcessBridge, "/ws/bridge")
+//                .setAllowedOrigins("*");
     }
 }
