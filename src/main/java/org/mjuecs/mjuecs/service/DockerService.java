@@ -66,6 +66,9 @@ public class DockerService {
                     .withTty(true)
                     .withStdinOpen(true)
                     .exec();
+            //메모리 3기가에,2코어
+            //컨테이너 안에 볼륨 맵핑 db
+            //status 요청 5s
 
             dockerClient.startContainerCmd(container.getId()).exec();
 
