@@ -18,7 +18,9 @@ public class DockerContainer {
     private String image;//컨테이너 생성에 사용된 이미지
     //이미지를 미리 만들거나 저장해둔다면 따로 도메인 생성 필요
 
-    private int containerPort;                //컨테이너 포트
-    private int hostPort;                     //호스트 포트
+    private int containerPort;                   //컨테이너 포트
+    private int hostPort;                        //호스트 포트
     // private String ttydUrl;                   //ttyd 접근 URL
+    // private String ttydContainerId;           //ttyd 컨테이너 ID
+    // private String ttydHostPort;              //ttyd 호스트 포트
 }
