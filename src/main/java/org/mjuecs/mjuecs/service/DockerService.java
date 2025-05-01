@@ -66,14 +66,16 @@ public class DockerService {
                     .withPortBindings(
                             new PortBinding(
                                     Ports.Binding.bindPort(hostPort), // 호스트 포트
-                                    new ExposedPort(dto.getContainerPort()) // 컨테이너 내부 포트
+                                    new ExposedPort(dto.getContainerPort(), InternetProtocol.TCP) // 컨테이너 내부 포트
                             ));
-
+            
+            ExposedPort exposedPort = new ExposedPort(dto.getContainerPort(), InternetProtocol.TCP);
             CreateContainerResponse container = dockerClient.createContainerCmd(dto.getImageName())
                     .withName("MjuEcs-" + student.getStudentId() + "-" + System.currentTimeMillis())
                     .withEnv(dto.getEnv().entrySet().stream()
                             .map(e -> e.getKey() + "=" + e.getValue()).toList())
                     .withHostConfig(hostConfig)
+                    .withExposedPorts(exposedPort)
                     .withCmd(dto.getCmd())
                     .withAttachStdin(true)
                     .withAttachStdout(true)
