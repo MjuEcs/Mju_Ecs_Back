@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CONTAINER_ID=$1 # 사용자가 접근할 컨테이너 ID
-PORT=$2 # 사용자가 접근할 포트
+CONTAINER_ID=$1       # 사용자가 접근할 컨테이너 ID
+PORT=$2               # 사용자가 접근할 포트
 
 if [ -z "$CONTAINER_ID" ] || [ -z "$PORT" ]; then
   echo "Usage: $0 <container-id> <host-port>"

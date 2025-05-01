@@ -10,7 +10,7 @@ import java.util.Map;
 @Setter
 public class ContainerDto {
     private String imageName;
-    private int hostPort;
+    private int containerPort;
     private Map<String, String> env;
     private List<String> cmd;
 }

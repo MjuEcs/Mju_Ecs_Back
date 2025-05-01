@@ -11,7 +11,7 @@ public class PortAllocator {
 
     private static final int START_PORT = 9000;
     private static final int END_PORT = 23000;
-    private static final int MAX_RANDOM_ATTEMPTS = 1000;
+    private static final int MAX_RANDOM_ATTEMPTS = 300;
     private final Random random = new Random();
 
     /**

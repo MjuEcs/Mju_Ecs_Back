@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -54,7 +55,30 @@ public class DockerController {
         }
 
         // 3. 성공 시 URL 반환
-        return ResponseEntity.ok(ttydUrl);
+        return ResponseEntity.ok(
+                "containerId: " + containerId + ", ttydUrl: " + ttydUrl);
+    }
+
+    /**
+     * 컨테이너 상태 조회 API입니다. 현재는 단순 HTTP1.1 방식으로 구현되어 있습니다
+     * - containerId 파라미터가 있을 경우 해당 컨테이너의 상태를 반환합니다.
+     * - 없을 경우 로그인한 사용자의 모든 컨테이너 상태를 반환합니다.
+     *
+     * @param containerId (optional) 특정 컨테이너 ID
+     * @return 컨테이너 상태 정보
+     */
+    @GetMapping("/status")
+    public ResponseEntity<?> getContainerStatus(
+            @RequestParam(name = "containerId", required = false) String containerId) {
+
+        String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Student> student = studentRepository.findById(studentId);
+
+        if (containerId != null && !containerId.isBlank()) {
+            return dockerService.getContainerStatus(containerId, student.get());
+        } else {
+            return dockerService.getAllContainerStatuses(student.get());
+        }
     }
 
     @PostMapping("/start")
