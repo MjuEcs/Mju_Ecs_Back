@@ -1,0 +1,152 @@
+/* 
+   공통 스타일 시트
+   MJU ECS 프로젝트의 모든 페이지에 적용되는 스타일을 정의합니다.
+*/
+
+/* 색상 변수 */
+:root {
+    --primary-color: #18327C;
+    --primary-dark: #122560;
+    --primary-light: #2a4397;
+    --primary-very-light: #e9ecf6;
+    --secondary-color: #6c757d;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+}
+
+/* 기본 스타일 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* 링크 스타일 */
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+a:hover {
+    text-decoration: underline;
+    color: var(--primary-dark);
+}
+
+/* 헤더 스타일 */
+header .container {
+    padding: 10px 0;
+}
+
+header.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* 카드 스타일 */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* 버튼 스타일 */
+.btn {
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 백그라운드 클래스 */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* 컨테이너 상태 배지 스타일 */
+.badge {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+}
+
+/* 로딩 상태 스타일 */
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* 알림 메시지 스타일 */
+.alert {
+    border-radius: 4px;
+    transition: opacity 0.5s ease;
+}
+
+/* 반응형 스타일 조정 */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+}
+
+/* 사용자 정보 표시 스타일 */
+#studentInfo, #userInfo {
+    font-weight: 500;
+    color: white;
+}
+
+/* 네비게이션 스타일 */
+.nav-link.active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* 탭 스타일 */
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border-color: #dee2e6 #dee2e6 #fff;
+}

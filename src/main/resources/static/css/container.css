@@ -1,0 +1,101 @@
+/*
+   컨테이너 관련 페이지 스타일 시트
+   MJU ECS 프로젝트의 컨테이너 상세 정보 페이지에 적용되는 스타일을 정의합니다.
+*/
+
+/* 컨테이너 정보 테이블 스타일 */
+.container-info {
+    width: 100%;
+}
+
+.container-info .row {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 0;
+}
+
+.container-info .row:last-child {
+    border-bottom: none;
+}
+
+/* 컨테이너 상태 배지 스타일 */
+#containerStatus {
+    padding: 6px 10px;
+    font-weight: normal;
+}
+
+/* URL 복사 필드 스타일 */
+#containerUrl {
+    font-family: monospace;
+    background-color: #f8f9fa;
+}
+
+/* 컨테이너 제어 버튼 스타일 */
+.btn-success, .btn-warning, .btn-danger, .btn-primary {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover, .btn-warning:hover, .btn-danger:hover, .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-success:active, .btn-warning:active, .btn-danger:active, .btn-primary:active {
+    transform: translateY(0);
+}
+
+/* 카드 헤더 스타일 */
+.card-header {
+    background-color: var(--primary-very-light);
+    border-bottom: 1px solid rgba(24, 50, 124, 0.2);
+}
+
+/* 카드 제목 스타일 */
+.card-title {
+    color: var(--primary-color);
+}
+
+/* 컨테이너 ID 스타일 */
+#containerId {
+    font-family: monospace;
+    word-break: break-all;
+}
+
+/* 알림 메시지 스타일 */
+#containerMessage {
+    transition: all 0.3s ease;
+}
+
+/* 터미널 버튼 스타일 */
+#openTerminal {
+    transition: all 0.3s ease;
+    background-color: var(--success-color);
+}
+
+#openTerminal:hover:not(:disabled) {
+    background-color: #157347;
+}
+
+#openTerminal:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* 반응형 스타일 조정 */
+@media (max-width: 768px) {
+    .container-info .col-md-4 {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+}
+
+/* 복사 버튼 스타일 */
+#copyUrlBtn {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+#copyUrlBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
