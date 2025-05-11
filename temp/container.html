@@ -97,6 +97,16 @@
                         </a>
                     </div>
                 </div>
+                
+                <!-- 문서 카드 -->
+                <div class="card mb-4" id="documentCard" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="mb-0">문서</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="documentContent" class="markdown-content"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- 컨테이너 제어 카드 -->
@@ -141,6 +151,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Custom JS -->
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>

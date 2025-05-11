@@ -72,29 +72,20 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="containerPort" class="form-label">컨테이너 포트</label>
-                                        <input type="number" class="form-control" id="containerPort" placeholder="예: 22" value="22" required>
+                                        <input type="number" class="form-control" id="containerPort" placeholder="예: 22" value="22">
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">환경 변수</label>
                                         <div id="envVars">
                                             <div class="row mb-2">
-                                                <div class="col-md-5">
-                                                    <input type="text" class="form-control env-key" placeholder="키">
-                                                </div>
-                                                <div class="col-md-5">
-                                                    <input type="text" class="form-control env-value" placeholder="값">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button type="button" class="btn btn-danger remove-env">삭제</button>
-                                                </div>
                                             </div>
                                         </div>
                                         <button type="button" class="btn btn-secondary btn-sm" id="addEnvBtn">환경 변수 추가</button>
                                     </div>
                                     <div class="mb-3">
                                         <label for="cmd" class="form-label">실행 명령어</label>
-                                        <input type="text" class="form-control" id="cmd" placeholder="예: sleep infinity" value="sleep infinity" required>
-                                        <div class="form-text">공백으로 구분된 명령어를 입력하세요. 예: sleep infinity</div>
+                                        <input type="text" class="form-control" id="cmd" placeholder="예: sleep infinity" value="sleep infinity">
+                                        <div class="form-text">실행 명령어를 입력하세요. 예: sleep infinity, python run.py ...</div>
                                     </div>
                                     <button type="submit" class="btn btn-primary" id="createContainerBtn">컨테이너 생성</button>
                                 </form>

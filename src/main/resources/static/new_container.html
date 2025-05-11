@@ -72,29 +72,20 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="containerPort" class="form-label">컨테이너 포트</label>
-                                        <input type="number" class="form-control" id="containerPort" placeholder="예: 22" value="22" required>
+                                        <input type="number" class="form-control" id="containerPort" placeholder="예: 22" value="22">
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">환경 변수</label>
                                         <div id="envVars">
                                             <div class="row mb-2">
-                                                <div class="col-md-5">
-                                                    <input type="text" class="form-control env-key" placeholder="키">
-                                                </div>
-                                                <div class="col-md-5">
-                                                    <input type="text" class="form-control env-value" placeholder="값">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button type="button" class="btn btn-danger remove-env">삭제</button>
-                                                </div>
                                             </div>
                                         </div>
                                         <button type="button" class="btn btn-secondary btn-sm" id="addEnvBtn">환경 변수 추가</button>
                                     </div>
                                     <div class="mb-3">
                                         <label for="cmd" class="form-label">실행 명령어</label>
-                                        <input type="text" class="form-control" id="cmd" placeholder="예: sleep infinity" value="sleep infinity" required>
-                                        <div class="form-text">공백으로 구분된 명령어를 입력하세요. 예: sleep infinity</div>
+                                        <input type="text" class="form-control" id="cmd" placeholder="예: sleep infinity" value="sleep infinity">
+                                        <div class="form-text">실행 명령어를 입력하세요. 예: sleep infinity, python run.py ...</div>
                                     </div>
                                     <button type="submit" class="btn btn-primary" id="createContainerBtn">컨테이너 생성</button>
                                 </form>
@@ -113,7 +104,7 @@
                     <p class="mb-0">&copy; 2025 MJU ECS. 명지대학교.</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p class="mb-0">문의: admin@example.com</p>
+                    <p class="mb-0">문의: sygys10293@mju.ac.kr</p>
                 </div>
             </div>
         </div>
@@ -127,178 +118,6 @@
     <script src="js/api.js"></script>
     <script src="js/container_templates.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 인증 확인
-            checkAuth();
-            
-            // 이벤트 리스너 설정
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('containerForm').addEventListener('submit', createContainer);
-            document.getElementById('addEnvBtn').addEventListener('click', addEnvRow);
-            
-            // 템플릿 카드 렌더링
-            renderTemplateCards();
-            
-            // 환경 변수 삭제 버튼 설정
-            setupRemoveEnvButtons();
-        });
-
-        function addEnvRow() {
-            const envDiv = document.createElement('div');
-            envDiv.className = 'row mb-2';
-            envDiv.innerHTML = `
-                <div class="col-md-5">
-                    <input type="text" class="form-control env-key" placeholder="키">
-                </div>
-                <div class="col-md-5">
-                    <input type="text" class="form-control env-value" placeholder="값">
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-danger remove-env">삭제</button>
-                </div>
-            `;
-            document.getElementById('envVars').appendChild(envDiv);
-            setupRemoveEnvButtons();
-        }
-
-        function setupRemoveEnvButtons() {
-            document.querySelectorAll('.remove-env').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.target.closest('.row').remove();
-                });
-            });
-        }
-
-        /**
-         * 템플릿 카드를 렌더링하는 함수
-         */
-        function renderTemplateCards() {
-            const templateCardsContainer = document.getElementById('templateCards');
-            
-            // 기존 컨텐츠 초기화
-            templateCardsContainer.innerHTML = '';
-            
-            // 각 템플릿에 대한 카드 생성
-            for (const [templateId, templateData] of Object.entries(containerTemplates)) {
-                const colDiv = document.createElement('div');
-                colDiv.className = 'col';
-                
-                // 템플릿 이름을 보기 좋게 변환 (첫 글자 대문자로)
-                const templateName = templateId.charAt(0).toUpperCase() + templateId.slice(1);
-                
-                colDiv.innerHTML = `
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">${templateName}</h5>
-                            <p class="card-text">${templateData.image}</p>
-                            <button class="btn btn-primary btn-sm template-select" data-template="${templateId}">선택</button>
-                        </div>
-                    </div>
-                `;
-                
-                templateCardsContainer.appendChild(colDiv);
-            }
-            
-            // 템플릿 선택 버튼 이벤트 리스너 설정
-            document.querySelectorAll('.template-select').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const template = e.target.getAttribute('data-template');
-                    selectTemplate(template);
-                });
-            });
-        }
-        
-        /**
-         * 템플릿을 선택하는 함수
-         * @param {string} templateId - 선택된 템플릿 ID
-         */
-        function selectTemplate(templateId) {
-            // 탭 전환
-            const manualTab = document.getElementById('manual-tab');
-            const tabInstance = new bootstrap.Tab(manualTab);
-            tabInstance.show();
-            
-            // 템플릿 데이터 가져오기
-            const templateData = containerTemplates[templateId];
-            
-            if (templateData) {
-                // 이미지 이름 설정
-                document.getElementById('imageName').value = templateData.image || '';
-                
-                // 포트 설정
-                document.getElementById('containerPort').value = templateData.port || '';
-                
-                // 명령어 설정 (템플릿에 없으면 기본값 사용)
-                document.getElementById('cmd').value = templateData.cmd || 'sleep infinity';
-                
-                // 환경 변수 설정
-                setupEnvironmentVariables(templateData.env);
-            }
-        }
-
-        /**
-         * 템플릿의 환경 변수 설정
-         * @param {Object} envVars - 환경 변수 객체
-         */
-        function setupEnvironmentVariables(envVars) {
-            // 기존 환경 변수 행 모두 삭제
-            const envVarsContainer = document.getElementById('envVars');
-            envVarsContainer.innerHTML = '';
-            
-            // 템플릿에 환경 변수가 있는 경우에만 설정
-            if (envVars && Object.keys(envVars).length > 0) {
-                // 환경 변수 행 추가
-                Object.entries(envVars).forEach(([key, value]) => {
-                    const envDiv = document.createElement('div');
-                    envDiv.className = 'row mb-2';
-                    envDiv.innerHTML = `
-                        <div class="col-md-5">
-                            <input type="text" class="form-control env-key" value="${key}" placeholder="키">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" class="form-control env-value" value="${value}" placeholder="값">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger remove-env">삭제</button>
-                        </div>
-                    `;
-                    envVarsContainer.appendChild(envDiv);
-                });
-                
-                // 환경 변수 삭제 버튼 설정 갱신
-                setupRemoveEnvButtons();
-            } else {
-                // 기본 빈 환경 변수 행 추가
-                addEnvRow();
-            }
-        }
-
-        function createContainer(e) {
-            e.preventDefault();
-            
-            // 폼 데이터 수집
-            const imageName = document.getElementById('imageName').value;
-            const containerPort = parseInt(document.getElementById('containerPort').value);
-            const cmdInput = document.getElementById('cmd').value;
-            const cmd = cmdInput.split(' ');
-            
-            // 환경 변수 수집
-            const env = {};
-            const envKeys = document.querySelectorAll('.env-key');
-            const envValues = document.querySelectorAll('.env-value');
-            
-            for (let i = 0; i < envKeys.length; i++) {
-                const key = envKeys[i].value.trim();
-                const value = envValues[i].value.trim();
-                if (key && value) {
-                    env[key] = value;
-                }
-            }
-            
-            // API 호출
-            runContainer(imageName, containerPort, env, cmd);
-        }
-    </script>
+    <script src="js/new_container.js"></script>
 </body>
 </html>

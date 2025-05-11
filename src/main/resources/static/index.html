@@ -57,7 +57,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-light">
-                        <h4 class="mb-0">공지사항</h4>
+                        <h4 class="mb-0">알림</h4>
                     </div>
                     <div class="card-body" id="gistContent">
                         <!-- 여기에 gist 내용이 동적으로 로드됩니다 -->
@@ -88,17 +88,17 @@
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
     <script src="js/container_templates.js"></script>
-    <script src="js/containers.js"></script>
+    <script src="js/all_container.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-        // 페이지 로드 시 인증 확인, 컨테이너 목록 refresh, 공지사항 gist를 가져옵니다
+        // 페이지 로드 시 인증 확인, 컨테이너 목록 refresh, 공지사항을 가져옵니다
         document.addEventListener('DOMContentLoaded', () => {
             // 인증 확인
             checkAuth();
             // 컨테이너 목록 로드
             loadContainers();
-            // 공지사항 Gist 로드
-            loadGistContent();
+            // 공지사항 로드
+            loadNoticeContent();
             
             // 이벤트 리스너 설정
             document.getElementById('refreshBtn').addEventListener('click', loadContainers);

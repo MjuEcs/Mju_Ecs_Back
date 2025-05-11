@@ -89,18 +89,18 @@ function getUserInfo() {
  * 공지사항 Markdown 내용을 로드하는 함수
  * @param {string} elementId - Markdown 내용을 표시할 요소의 ID (기본값: gistContent)
  */
-function loadGistContent(elementId = 'gistContent') {
+function loadNoticeContent(elementId = 'gistContent') {
     const contentElement = document.getElementById(elementId);
 
     if (contentElement) {
         // 로딩 표시
         contentElement.innerHTML = '<p>공지사항을 불러오는 중...</p>';
 
-        // Markdown 파일 URL
-        const gistUrl = 'https://gist.githubusercontent.com/shinnyeonki/b06c62a49d4aac20b8018e823bedde1e/raw/d81e13ce403827f21a41ea47796c1afaac363cf6/md';
+        // Markdown 파일 경로
+        const noticePath = 'assets/notice.md';
 
         // Fetch 요청
-        fetch(gistUrl)
+        fetch(noticePath)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('네트워크 응답이 올바르지 않습니다.');

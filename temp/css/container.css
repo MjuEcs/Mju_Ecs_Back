@@ -3,6 +3,40 @@
    MJU ECS 프로젝트의 컨테이너 상세 정보 페이지에 적용되는 스타일을 정의합니다.
 */
 
+/* 마크다운 컨텐츠 스타일 */
+.markdown-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.4rem;
+}
+
+.markdown-content h4 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.2rem;
+}
+
+.markdown-content p {
+    margin-bottom: 1rem;
+}
+
+.markdown-content pre {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.markdown-content code {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875rem;
+}
+
+.markdown-content ul, .markdown-content ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
 /* 컨테이너 정보 테이블 스타일 */
 .container-info {
     width: 100%;
