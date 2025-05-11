@@ -15,9 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +26,11 @@ public class DockerService {
     private final DockerClient dockerClient;
     private final DockerContainerRepository dockerContainerRepository;
     private final PortAllocator portAllocator;
+    private final TtydService ttydService;
 
-    public DockerService(DockerContainerRepository dockerContainerRepository, PortAllocator portAllocator) {
+    public DockerService(DockerContainerRepository dockerContainerRepository, PortAllocator portAllocator, TtydService ttydService) {
         this.dockerContainerRepository = dockerContainerRepository;
+        this.ttydService = ttydService;
         this.dockerClient = DockerClientFactory.createClient();
         this.portAllocator = portAllocator;
     }
@@ -97,6 +96,8 @@ public class DockerService {
             dockerContainer.setContainerPort(dto.getContainerPort()); // 내부 포트 저장
             dockerContainerRepository.save(dockerContainer);
 
+            ttydService.launchTtydAndSave(dockerContainer);
+
             return container.getId(); // ✅ 사용자에게 URL 제공
         }
         return "컨테이너 생성 불가";
@@ -127,6 +128,7 @@ public class DockerService {
 
         try {
             dockerClient.startContainerCmd(containerId).exec();
+            ttydService.startTtyd(containerId);
             return ResponseEntity.ok("컨테이너 시작 완료");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("시작 실패: " + e.getMessage());
@@ -141,6 +143,7 @@ public class DockerService {
 
         try {
             dockerClient.stopContainerCmd(containerId).exec();
+            ttydService.stopTtyd(containerId);
             return ResponseEntity.ok("컨테이너 중지 완료");
         } catch (NotModifiedException e) {
             return ResponseEntity.ok("이미 중지된 상태");
@@ -158,6 +161,7 @@ public class DockerService {
 
         try {
             dockerClient.restartContainerCmd(containerId).exec();
+            ttydService.restartTtyd(containerId);
             return ResponseEntity.ok("컨테이너 재시작 완료");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("재시작 실패: " + e.getMessage());
@@ -174,7 +178,8 @@ public class DockerService {
         try {
             // 이미 실행 중이라면 중지
             try {
-                dockerClient.stopContainerCmd(containerId).exec(); // NotModifiedException 무시
+                dockerClient.stopContainerCmd(containerId).exec();
+                ttydService.removeTtyd(containerId);// NotModifiedException 무시
             } catch (NotModifiedException ignored) {
             }
 
