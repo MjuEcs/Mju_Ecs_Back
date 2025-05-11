@@ -150,7 +150,7 @@ async function removeContainer(containerId) {
  */
 async function runContainer(imageName, containerPort, env = {}, cmd = []) {
     try {
-        const response = await fetch('/docker/custom/run', {
+        const response = await fetch('/api/containers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

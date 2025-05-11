@@ -20,7 +20,10 @@ public class DockerContainer {
 
     private int containerPort;                   //컨테이너 포트
     private int hostPort;                        //호스트 포트
-    // private String ttydUrl;                   //ttyd 접근 URL
+    
     // private String ttydContainerId;           //ttyd 컨테이너 ID
     // private String ttydHostPort;              //ttyd 호스트 포트
+    // ttyd 컨테이너의 컨테이너 포트의 경우 고정되어 있으므로 필요 없음
+
+    // private String volumeId;                  //볼륨 ID
 }
