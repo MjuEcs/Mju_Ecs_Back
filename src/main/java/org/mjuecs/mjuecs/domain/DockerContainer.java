@@ -20,6 +20,7 @@ public class DockerContainer {
 
     private int containerPort;                   //컨테이너 포트
     private int hostPort;                        //호스트 포트
+    private int ttydPort;                       //ttyd컨테이너 연결에 사용되는 포트
 
     @OneToOne(mappedBy = "dockerContainer", cascade = CascadeType.ALL, orphanRemoval = true)
     private TtydContainer ttydContainer;

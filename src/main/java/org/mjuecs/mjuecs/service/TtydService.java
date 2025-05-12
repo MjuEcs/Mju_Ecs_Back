@@ -2,20 +2,24 @@
 package org.mjuecs.mjuecs.service;
 
 import lombok.RequiredArgsConstructor;
+import org.mjuecs.mjuecs.DockerClientFactory;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.TtydContainer;
+import org.mjuecs.mjuecs.repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.repository.TtydContainerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
 public class TtydService {
 
     private final TtydContainerRepository ttydContainerRepository;
+    private final DockerContainerRepository dockerContainerRepository;
     private final PortAllocator portAllocator;
 
 
@@ -30,6 +34,9 @@ public class TtydService {
         ttyd.setTtydContainerId(ttydContainerId);
         ttyd.setDockerContainer(dockerContainer);
         ttydContainerRepository.save(ttyd);
+
+        dockerContainer.setTtydPort(ttydPort);
+        dockerContainerRepository.save(dockerContainer);
     }
 
     private String runTtydProxy(String containerId, int port) {
@@ -37,26 +44,25 @@ public class TtydService {
             ProcessBuilder pb = new ProcessBuilder("/bin/bash", "./deploy-ttyd.sh", containerId, String.valueOf(port));
             pb.directory(new File("."));
             pb.redirectErrorStream(true);
-            Process process = pb.start();
+            pb.start();
+
+            // Docker CLI로 실제 ttyd 컨테이너 ID를 확인
+            Thread.sleep(1000); // 약간의 지연 필요
             return waitForContainerId(port);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException("ttyd 실행 실패", e);
         }
     }
 
     private String waitForContainerId(int port) {
-        // 실제 구현에서는 DockerClient를 통해 ttyd 컨테이너 ID를 찾아야 함
-        try {
-            Thread.sleep(1000); // 임시 대기
-            ProcessBuilder pb = new ProcessBuilder("docker", "ps", "--filter", "name=ttyd-proxy-" + port, "--format", "{{.ID}}\n");
-            pb.directory(new File("."));
-            Process p = pb.start();
-            try (var reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()))) {
-                return reader.readLine();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("ttyd 컨테이너 ID 조회 실패", e);
-        }
+        return DockerClientFactory.createClient().listContainersCmd()
+                .withShowAll(true)
+                .exec()
+                .stream()
+                .filter(c -> Arrays.asList(c.getNames()).contains("/ttyd-proxy-" + port))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("ttyd 컨테이너 생성 실패"))
+                .getId();
     }
 
     public void stopTtyd(String dockerContainerId) {
