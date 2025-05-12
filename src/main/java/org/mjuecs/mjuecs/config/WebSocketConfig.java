@@ -10,13 +10,12 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
-public class WebSocketBridgeConfig implements WebSocketConfigurer {
+public class WebSocketConfig implements WebSocketConfigurer {
 
 //    private final TerminalProcessBridge terminalProcessBridge;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-//        registry.addHandler(terminalProcessBridge, "/ws/bridge")
-//                .setAllowedOrigins("*");
+        // 등록 필요 시 작성 (현재는 @ServerEndpoint 사용 중)
     }
 }

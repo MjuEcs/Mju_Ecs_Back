@@ -13,6 +13,8 @@ spring:
         format_sql: true
   jwt:
     secret: d2on37hrhod273mdh24o8mohd2438m4jx
+  main:
+    allow-bean-definition-overriding: true
 server:
   servlet:
     session:
