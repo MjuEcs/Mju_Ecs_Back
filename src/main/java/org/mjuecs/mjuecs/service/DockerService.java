@@ -274,7 +274,7 @@ public class DockerService {
         }
 
         // Create a zip file from the copied files
-        Path zipFile = Files.createTempFile("container-files", ".zip");
+        Path zipFile = Files.createTempFile( containerId + "-volume", ".zip"); // 
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile.toFile()))) {
             Files.walk(tempDir).forEach(path -> {
                 try {
