@@ -1,6 +1,7 @@
 package org.mjuecs.mjuecs.service;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -75,7 +76,14 @@ public class DockerService {
                             ));
             
             ExposedPort exposedPort = new ExposedPort(dto.getContainerPort(), InternetProtocol.TCP);
-            CreateContainerResponse container = dockerClient.createContainerCmd(dto.getImageName())
+
+            CreateContainerCmd baseCmd = dockerClient.createContainerCmd(dto.getImageName());
+
+            if (dto.getHostName() != null && !dto.getHostName().isBlank()) {
+                baseCmd.withHostName(dto.getHostName());
+            }
+
+            CreateContainerResponse container = baseCmd
                     .withName("MjuEcs-" + student.getStudentId() + "-" + System.currentTimeMillis())
                     .withEnv(dto.getEnv().entrySet().stream()
                             .map(e -> e.getKey() + "=" + e.getValue()).toList())
@@ -88,6 +96,8 @@ public class DockerService {
                     .withTty(true)
                     .withStdinOpen(true)
                     .exec();
+
+            //hostName
             // 메모리 3기가에,2코어
             // 컨테이너 안에 볼륨 맵핑 db
             // status 요청 5s
