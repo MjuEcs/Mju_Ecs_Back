@@ -92,9 +92,8 @@ function setupContainerForm() {
                 containerData.env = envVars;
             }
             
-            if (command) {
-                containerData.cmd = command.split(' ').filter(Boolean);
-            }
+            // cmd 처리: 값이 있으면 공백으로 분리하고, 없으면 빈 배열로 설정
+            containerData.cmd = command ? command.split(' ').filter(Boolean) : [];
             
             // Ensure `env` is always included in the request, even if empty
             if (!containerData.env) {
@@ -255,7 +254,7 @@ function selectTemplate(templateId) {
         if (containerPortInput) containerPortInput.value = templateData.port || '';
         
         // 명령어 설정
-        const cmdInput = document.getElementById('command');
+        const cmdInput = document.getElementById('cmd');
         if (cmdInput) cmdInput.value = templateData.cmd || '';
         
         // 환경 변수 설정
@@ -268,7 +267,7 @@ function selectTemplate(templateId) {
  * @param {Object} envVars - 환경 변수 객체
  */
 function setupEnvironmentVariables(envVars) {
-    const envContainer = document.getElementById('environmentVars');
+    const envContainer = document.getElementById('envVars');
     if (!envContainer) return;
     
     // 기존 환경 변수 행 모두 삭제
