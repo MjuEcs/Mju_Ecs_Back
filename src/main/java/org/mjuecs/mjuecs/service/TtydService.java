@@ -3,6 +3,7 @@ package org.mjuecs.mjuecs.service;
 
 import lombok.RequiredArgsConstructor;
 import org.mjuecs.mjuecs.DockerClientFactory;
+import org.mjuecs.mjuecs.component.PortAccessManager;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.TtydContainer;
 import org.mjuecs.mjuecs.repository.DockerContainerRepository;
@@ -21,6 +22,7 @@ public class TtydService {
     private final TtydContainerRepository ttydContainerRepository;
     private final DockerContainerRepository dockerContainerRepository;
     private final PortAllocator portAllocator;
+    private PortAccessManager portAccessManager;
 
 
 
@@ -37,6 +39,8 @@ public class TtydService {
 
         dockerContainer.setTtydHostPort(ttydPort);
         dockerContainerRepository.save(dockerContainer);
+
+        portAccessManager.block(ttydPort);
     }
 
     private String runTtydProxy(String containerId, int port) {
