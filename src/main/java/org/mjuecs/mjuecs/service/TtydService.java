@@ -35,7 +35,7 @@ public class TtydService {
         ttyd.setDockerContainer(dockerContainer);
         ttydContainerRepository.save(ttyd);
 
-        dockerContainer.setTtydPort(ttydPort);
+        dockerContainer.setTtydHostPort(ttydPort);
         dockerContainerRepository.save(dockerContainer);
     }
 

@@ -13,4 +13,6 @@ public class ContainerDto {
     private int containerPort;
     private Map<String, String> env;
     private List<String> cmd;
+
+    private String hostName;
 }

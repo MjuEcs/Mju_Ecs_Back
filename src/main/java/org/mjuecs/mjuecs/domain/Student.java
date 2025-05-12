@@ -14,7 +14,5 @@ public class Student {
     @Id
     String studentId;
 
-    String name;
-
     Date lastLogin;
 }
