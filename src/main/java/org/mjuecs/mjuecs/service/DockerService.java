@@ -15,10 +15,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class DockerService {
@@ -247,5 +253,46 @@ public class DockerService {
         }
 
         return ResponseEntity.ok(result);
+    }
+
+    public File downloadContainerFiles(String containerId) throws IOException {
+        // Temporary directory to store copied files
+        Path tempDir = Files.createTempDirectory("docker-container-files");
+
+        // Execute docker cp command using ProcessBuilder
+        ProcessBuilder processBuilder = new ProcessBuilder("docker", "cp", containerId + ":/", tempDir.toString());
+        Process process = processBuilder.start();
+
+        try {
+            if (!process.waitFor(30, TimeUnit.SECONDS)) {
+                process.destroy();
+                throw new IOException("Failed to copy files from container: " + containerId);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Process interrupted while copying files", e);
+        }
+
+        // Create a zip file from the copied files
+        Path zipFile = Files.createTempFile("container-files", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile.toFile()))) {
+            Files.walk(tempDir).forEach(path -> {
+                try {
+                    if (Files.isRegularFile(path)) {
+                        ZipEntry zipEntry = new ZipEntry(tempDir.relativize(path).toString());
+                        zos.putNextEntry(zipEntry);
+                        Files.copy(path, zos);
+                        zos.closeEntry();
+                    }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+
+        // Clean up temporary directory
+        Files.walk(tempDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+
+        return zipFile.toFile();
     }
 }

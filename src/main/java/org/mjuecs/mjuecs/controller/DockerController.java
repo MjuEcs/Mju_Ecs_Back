@@ -10,8 +10,14 @@ import org.mjuecs.mjuecs.service.TtydService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/docker")
@@ -108,5 +114,24 @@ public class DockerController {
         Optional<Student> student = studentRepository.findById(studentId);
 
         return dockerService.removeContainer(containerId, student.get());
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<FileSystemResource> downloadContainerFiles(@RequestParam("containerId") String containerId) {
+        try {
+            File zipFile = dockerService.downloadContainerFiles(containerId);
+
+            FileSystemResource resource = new FileSystemResource(zipFile);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=container-files.zip");
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(zipFile.length())
+                    .body(resource);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
