@@ -34,7 +34,6 @@ public class StudentService {
                 .orElseGet(() -> {
                     Student student = new Student();
                     student.setStudentId(dto.getStudentId());
-                    student.setName(dto.getName());
                     student.setLastLogin(new Date());
                     return studentRepository.save(student);
                 });

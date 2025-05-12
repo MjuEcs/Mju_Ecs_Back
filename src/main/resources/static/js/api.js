@@ -173,3 +173,41 @@ async function runContainer(imageName, containerPort, env = {}, cmd = []) {
         throw error;
     }
 }
+
+/**
+ * 컨테이너 파일 다운로드 API
+ * @param {string} containerId - 컨테이너 ID
+ * @returns {Promise<void>} - 다운로드 요청 Promise
+ */
+async function downloadContainerFiles(containerId) {
+    const url = `${API_BASE_URL}/docker/download?containerId=${containerId}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Create a blob from the response
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        // Create a temporary link to trigger the download
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `${containerId}-volume.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        // Revoke the object URL after download
+        window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+        console.error('파일 다운로드 오류:', error);
+        alert('파일 다운로드에 실패했습니다.');
+    }
+}

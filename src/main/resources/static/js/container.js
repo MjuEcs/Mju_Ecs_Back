@@ -20,10 +20,35 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 이벤트 리스너 설정
     document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('startContainer').addEventListener('click', () => startContainer(containerId));
-    document.getElementById('stopContainer').addEventListener('click', () => stopContainer(containerId));
-    document.getElementById('restartContainer').addEventListener('click', () => restartContainer(containerId));
-    document.getElementById('removeContainer').addEventListener('click', () => confirmAndRemoveContainer(containerId));
+
+    const actions = [
+        { id: 'startContainer', action: startContainer, label: '<i class="bi bi-play-fill"></i> 시작' },
+        { id: 'stopContainer', action: stopContainer, label: '<i class="bi bi-stop-fill"></i> 정지' },
+        { id: 'restartContainer', action: restartContainer, label: '<i class="bi bi-arrow-clockwise"></i> 재시작' },
+        { id: 'removeContainer', action: confirmAndRemoveContainer, label: '<i class="bi bi-trash"></i> 삭제' },
+        { id: 'downloadFiles', action: downloadContainerFiles, label: '<i class="bi bi-download"></i> 다운로드' }
+    ];
+
+    actions.forEach(({ id, action, label }) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.addEventListener('click', async function() {
+                button.disabled = true;
+                const originalText = button.innerHTML;
+                button.innerHTML = `${label} 중...`;
+                
+                try {
+                    await action(containerId);
+                    loadContainerDetails(containerId);
+                } catch (error) {
+                    console.error(`${id} 실행 중 오류 발생:`, error);
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = label;
+                }
+            });
+        }
+    });
 });
 
 /**
@@ -176,17 +201,23 @@ async function loadContainerDocument(imageName) {
  * @param {string} containerId - 컨테이너 ID
  */
 function confirmAndRemoveContainer(containerId) {
-    if (confirm('정말로 이 컨테이너를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        removeContainer(containerId)
-            .then(() => {
-                showMessage('containerMessage', '컨테이너가 삭제되었습니다.', false);
-                setTimeout(() => redirectTo('index.html'), 2000);
-            })
-            .catch(error => {
-                console.error('컨테이너 삭제 오류:', error);
-                showMessage('containerMessage', '컨테이너 삭제에 실패했습니다.');
-            });
-    }
+    return new Promise((resolve, reject) => {
+        if (confirm('정말로 이 컨테이너를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+            removeContainer(containerId)
+                .then(() => {
+                    showMessage('containerMessage', '컨테이너가 삭제되었습니다.', false);
+                    setTimeout(() => redirectTo('index.html'), 2000);
+                    resolve();
+                })
+                .catch(error => {
+                    console.error('컨테이너 삭제 오류:', error);
+                    showMessage('containerMessage', '컨테이너 삭제에 실패했습니다.');
+                    reject(error);
+                });
+        } else {
+            resolve(); // User canceled the confirmation
+        }
+    });
 }
 
 /**

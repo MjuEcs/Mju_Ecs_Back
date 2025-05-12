@@ -163,3 +163,29 @@ DEL `/docker/remove?containerId=1733658b61d30717d2083467ba656abd68b29bfa7d075ed6
 
 이런식 입니다
 
+
+### 📁 컨테이너 파일 다운로드 API (추가됨)
+✅ GET /docker/download
+📌 설명
+Docker 컨테이너 내부의 모든 파일 시스템을 서버에서 복사 후 ZIP 형식으로 압축하여 클라이언트에게 전송합니다.
+이 기능은 Spring Boot 기반으로 구현되었습니다.
+📥 요청
+HTTP Method : GET
+URL : /docker/download
+Query Parameter :
+containerId (필수): 대상 컨테이너의 ID 또는 이름
+📤 응답
+성공 시 :
+HTTP Status: 200 OK
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=container-files.zip
+Body: 컨테이너 루트 디렉토리의 모든 파일이 포함된 ZIP 파일
+실패 시 :
+HTTP Status: 500 Internal Server Error
+Body: 없음
+🔄 동작 순서
+서버가 임시 디렉토리 생성 (/tmp/docker-container-files-*)
+docker cp <containerId>:/ <tempDir> 실행
+해당 디렉토리를 ZIP 파일로 압축
+ZIP 파일을 HTTP 응답으로 반환
+임시 디렉토리 삭제
