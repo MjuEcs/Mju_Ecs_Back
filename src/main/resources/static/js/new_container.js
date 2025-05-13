@@ -77,24 +77,30 @@ function setupContainerForm() {
             
             // 명령어 처리 - 값이 있는 경우만 포함
             const command = document.getElementById('cmd').value;
-            
-            // 컨테이너 생성 요청 데이터 - 필수 값인 imageName만 기본 포함
-            const containerData = {
-                imageName
-            };
-            
+
+            // 호스트 이름 입력 값 추가
+            const hostName = document.getElementById('hostName').value;
+
+            // 컨테이너 생성 요청 데이터 - 필수 값인 imageName 포함
+            const containerData = { imageName };
+
             // 선택적 필드는 값이 있을 때만 추가
             if (containerPortInput) {
                 containerData.containerPort = parseInt(containerPortInput);
             }
-            
+
             if (Object.keys(envVars).length > 0) {
                 containerData.env = envVars;
             }
-            
+
             // cmd 처리: 값이 있으면 공백으로 분리하고, 없으면 빈 배열로 설정
             containerData.cmd = command ? command.split(' ').filter(Boolean) : [];
-            
+
+            // 호스트 이름 추가 (선택적)
+            if (hostName) {
+                containerData.hostName = hostName;
+            }
+
             // Ensure `env` is always included in the request, even if empty
             if (!containerData.env) {
                 containerData.env = {};

@@ -146,9 +146,10 @@ async function removeContainer(containerId) {
  * @param {number} containerPort - 컨테이너 포트
  * @param {Object} env - 환경 변수 객체
  * @param {Array} cmd - 실행 명령어 배열
+ * @param {string} hostName - 호스트 이름
  * @returns {Promise<string>} - 생성된 컨테이너 ID를 포함한 응답 문자열
  */
-async function runContainer(imageName, containerPort, env = {}, cmd = []) {
+async function runContainer(imageName, containerPort, env = {}, cmd = [], hostName) {
     try {
         const response = await fetch('/docker/custom/run', {
             method: 'POST',
@@ -160,6 +161,7 @@ async function runContainer(imageName, containerPort, env = {}, cmd = []) {
                 containerPort,
                 env,
                 cmd,
+                hostName, // Add hostName to the request body
             }),
         });
 
