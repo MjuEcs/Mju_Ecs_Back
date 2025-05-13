@@ -1,5 +1,8 @@
 package org.mjuecs.mjuecs.controller;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.core.DockerClientBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -26,6 +30,7 @@ import java.util.Map;
 public class TerminalController {
     private final DockerContainerRepository dockerContainerRepository;
     private final PortAccessManager portAccessManager;
+    private final DockerClient dockerClient = DockerClientBuilder.getInstance().build();
     @PostMapping("/unlock/{containerId}")
     public ResponseEntity<?> unlock(@PathVariable String containerId) {
         return dockerContainerRepository.findById(containerId)
@@ -43,7 +48,24 @@ public class TerminalController {
         return dockerContainerRepository.findById(containerId)
                 .map(container -> {
                     portAccessManager.refresh(container.getTtydHostPort());
-                    return ResponseEntity.ok().build();
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("message", "pong");
+
+                    try {
+                        InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(container.getContainerId()).exec();
+                        response.put("status", containerInfo.getState().getStatus());
+                        response.put("startedAt", containerInfo.getState().getStartedAt());
+                        response.put("image", container.getImage());
+                        response.put("ports", Map.of(
+                                "hostPort", container.getHostPort(),
+                                "containerPort", container.getContainerPort()
+                        ));
+                    } catch (Exception e) {
+                        response.put("statusError", e.getMessage());
+                    }
+
+                    return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
