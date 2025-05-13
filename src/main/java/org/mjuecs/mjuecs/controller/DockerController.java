@@ -118,7 +118,7 @@ public class DockerController {
     }
 
     @GetMapping("/download")
-    @RateLimit(limit = 1, period = 30) // 30초에 최대 1회 요청 제한
+    @RateLimit(limit = 4, period = 180) // 180초에 최대 4회 요청 제한
     public ResponseEntity<FileSystemResource> downloadContainerFiles(@RequestParam("containerId") String containerId) {
         try {
             File zipFile = dockerService.downloadContainerFiles(containerId);
