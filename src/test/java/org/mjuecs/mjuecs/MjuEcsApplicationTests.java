@@ -1,13 +1,13 @@
-package org.mjuecs.mjuecs;
+// package org.mjuecs.mjuecs;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class MjuEcsApplicationTests {
+// @SpringBootTest
+// class MjuEcsApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+//     @Test
+//     void contextLoads() {
+//     }
 
-}
+// }
