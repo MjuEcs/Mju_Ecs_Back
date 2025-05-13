@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function loadContainerDetails(containerId) {
     try {
-        const containerInfo = await getContainerInfo(containerId);
+        const containerInfo = (await getContainerInfo(containerId))?.[0];
         
         if (!containerInfo) {
             showMessage('containerMessage', '컨테이너 정보를 찾을 수 없습니다.');
@@ -81,22 +81,22 @@ async function loadContainerDetails(containerId) {
         }
 
         // 컨테이너 정보 표시
-        containerImageElement.textContent = containerInfo.image;
-        containerIdElement.textContent = containerInfo.containerId;
+        containerImageElement.textContent = containerInfo.image || '-';
+        containerIdElement.textContent = containerInfo.containerId || '-';
         containerStatusElement.textContent = containerInfo.status;
         containerStatusElement.className = `badge ${getStatusClass(containerInfo.status)}`;
         containerStartedElement.textContent = formatDate(containerInfo.startedAt);
         containerPortsElement.textContent = `${containerInfo.ports.containerPort} (컨테니어 내부 포트) ↔ ${containerInfo.ports.hostPort} (외부 접근 포트)`;
         
-        // 터미널 URL 설정
-        const terminalUrl = `http://localhost:${containerInfo.ports.hostPort}`;
+        // 웹 터미널 URL 설정 (ttydHostPort 사용)
+        const terminalUrl = `http://localhost:${containerInfo.ports.ttydHostPort}`;
         const terminalBtn = document.getElementById('openTerminal');
         if (terminalBtn) {
             terminalBtn.href = terminalUrl;
             terminalBtn.disabled = containerInfo.status.toLowerCase() !== 'running';
         }
         
-        // 컨테이너 URL 표시
+        // 컨테이너 터미널 URL 표시
         const urlElement = document.getElementById('containerUrl');
         if (urlElement) {
             urlElement.value = terminalUrl;

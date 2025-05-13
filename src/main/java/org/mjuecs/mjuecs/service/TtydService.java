@@ -40,7 +40,7 @@ public class TtydService {
         dockerContainer.setTtydHostPort(ttydPort);
         dockerContainerRepository.save(dockerContainer);
 
-        portAccessManager.block(ttydPort);
+        // portAccessManager.block(ttydPort);
     }
 
     private String runTtydProxy(String containerId, int port) {
