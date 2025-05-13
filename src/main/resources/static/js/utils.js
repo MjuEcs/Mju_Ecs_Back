@@ -118,3 +118,75 @@ function loadNoticeContent(elementId = 'gistContent') {
             });
     }
 }
+
+
+
+
+/**
+ * 컨테이너 문서 로드 함수 (공통)
+ * @param {string} imageName - 컨테이너 이미지 이름
+ * @param {string} [cardId='documentCard'] - 문서 카드 요소 ID
+ * @param {string} [contentId='documentContent'] - 문서 내용 요소 ID
+ */
+async function loadContainerDocument(imageName, cardId = 'documentCard', contentId = 'documentContent') {
+    try {
+        // 이미지 이름으로 템플릿 찾기
+        const templateName = Object.keys(containerTemplates).find(key => 
+            containerTemplates[key].image === imageName || 
+            imageName.includes(containerTemplates[key].image.split(':')[0])
+        );
+        const docCard = document.getElementById(cardId);
+        // 템플릿을 찾고 docPath가 있는 경우에만 문서 로드
+        if (templateName && containerTemplates[templateName].docPath) {
+            const docPath = containerTemplates[templateName].docPath;
+            if (!docPath) {
+                docCard && (docCard.style.display = 'none');
+                return;
+            }
+            // 문서 파일 가져오기
+            const response = await fetch(docPath);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const markdown = await response.text();
+            // 마크다운을 HTML로 변환하여 표시
+            const documentContent = document.getElementById(contentId);
+            if (documentContent) {
+                documentContent.innerHTML = marked.parse(markdown);
+                // 코드 블록에 스타일 적용
+                documentContent.querySelectorAll('pre code').forEach((block) => {
+                    block.className = 'p-2 bg-light';
+                    block.style.display = 'block';
+                    block.style.overflow = 'auto';
+                });
+                // 마크다운 콘텐츠 내 이미지 크기 제한
+                documentContent.querySelectorAll('img').forEach((img) => {
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                });
+                // 문서 카드 표시
+                docCard && (docCard.style.display = 'block');
+            }
+        } else {
+            // 문서가 없는 경우 카드 숨기기
+            docCard && (docCard.style.display = 'none');
+        }
+    } catch (error) {
+        console.error('문서 로드 오류:', error);
+        const docCard = document.getElementById(cardId);
+        docCard && (docCard.style.display = 'none');
+    }
+}
+
+
+/**
+ * 쿠키를 가져오는 함수
+ * @param {string} name - 쿠키 이름
+ * @returns {string|null} - 쿠키 값 또는 null
+ */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
