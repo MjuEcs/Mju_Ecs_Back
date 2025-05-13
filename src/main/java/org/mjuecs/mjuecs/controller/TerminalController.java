@@ -6,6 +6,7 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.mjuecs.mjuecs.DockerClientFactory;
 import org.mjuecs.mjuecs.component.PortAccessManager;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.repository.DockerContainerRepository;
@@ -25,13 +26,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/internal")
 public class TerminalController {
     private final DockerContainerRepository dockerContainerRepository;
     private final PortAccessManager portAccessManager;
-    private final DockerClient dockerClient = DockerClientBuilder.getInstance().build();
+    private final DockerClient dockerClient;
+
+    public TerminalController(DockerContainerRepository dockerContainerRepository,PortAccessManager portAccessManager) {
+        this.dockerContainerRepository = dockerContainerRepository;
+        this.portAccessManager = portAccessManager;
+        this.dockerClient = DockerClientFactory.createClient();
+
+    }
     @PostMapping("/unlock/{containerId}")
+
     public ResponseEntity<?> unlock(@PathVariable String containerId) {
         return dockerContainerRepository.findById(containerId)
                 .map(container -> {
