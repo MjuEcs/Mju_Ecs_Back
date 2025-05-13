@@ -265,6 +265,11 @@ function selectTemplate(templateId) {
         
         // 환경 변수 설정
         setupEnvironmentVariables(templateData.env);
+
+        // 문서 자동 로드
+        if (typeof loadContainerDocument === 'function') {
+            loadContainerDocument(templateData.image, 'documentCard', 'documentContent');
+        }
     }
 }
 
