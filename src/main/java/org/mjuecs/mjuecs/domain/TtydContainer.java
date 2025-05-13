@@ -11,7 +11,6 @@ public class TtydContainer {
     @Id
     private String ttydContainerId;
 
-
     @OneToOne
     @JoinColumn(name = "docker_container_id")
     private DockerContainer dockerContainer;

@@ -12,6 +12,7 @@ import org.mjuecs.mjuecs.repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.domain.DockerContainer;
 import org.mjuecs.mjuecs.domain.Student;
 import org.mjuecs.mjuecs.dto.ContainerDto;
+import org.mjuecs.mjuecs.dto.ContainerStatusDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -218,16 +219,21 @@ public class DockerService {
             InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
             DockerContainer dockerContainer = dockerContainerRepository.findById(containerId).orElseThrow();
 
-            Map<String, Object> responseData = Map.of(
-                    "containerId", containerId,
-                    "status", containerInfo.getState().getStatus(),
-                    "image", dockerContainer.getImage(),
-                    "startedAt", containerInfo.getState().getStartedAt(),
-                    "ports", Map.of(
-                            "hostPort", dockerContainer.getHostPort(),
-                            "containerPort", dockerContainer.getContainerPort()));
+            ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
+                    .hostPort(dockerContainer.getHostPort())
+                    .containerPort(dockerContainer.getContainerPort())
+                    .ttydHostPort(dockerContainer.getTtydHostPort())
+                    .build();
 
-            return ResponseEntity.ok(responseData);
+            ContainerStatusDto statusDto = ContainerStatusDto.builder()
+                    .containerId(dockerContainer.getContainerId())
+                    .status(containerInfo.getState().getStatus())
+                    .image(dockerContainer.getImage())
+                    .startedAt(containerInfo.getState().getStartedAt())
+                    .ports(portsDto)
+                    .build();
+
+            return ResponseEntity.ok(List.of(statusDto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("컨테이너 상태 조회 실패: " + e.getMessage());
         }
@@ -235,30 +241,44 @@ public class DockerService {
 
     public ResponseEntity<?> getAllContainerStatuses(Student student) {
         List<DockerContainer> containers = dockerContainerRepository.findByStudent(student);
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<ContainerStatusDto> result = new ArrayList<>();
 
         for (DockerContainer container : containers) {
             try {
                 InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(container.getContainerId())
                         .exec();
 
-                result.add(Map.of(
-                        "containerId", container.getContainerId(),
-                        "status", containerInfo.getState().getStatus(),
-                        "image", container.getImage(),
-                        "startedAt", containerInfo.getState().getStartedAt(),
-                        "ports", Map.of(
-                                "hostPort", container.getHostPort(),
-                                "containerPort", container.getContainerPort())));
+                ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
+                        .hostPort(container.getHostPort())
+                        .containerPort(container.getContainerPort())
+                        .ttydHostPort(container.getTtydHostPort())
+                        .build();
+
+                ContainerStatusDto statusDto = ContainerStatusDto.builder()
+                        .containerId(container.getContainerId())
+                        .status(containerInfo.getState().getStatus())
+                        .image(container.getImage())
+                        .startedAt(containerInfo.getState().getStartedAt())
+                        .ports(portsDto)
+                        .build();
+
+                result.add(statusDto);
             } catch (Exception e) {
-                result.add(Map.of(
-                        "containerId", container.getContainerId(),
-                        "status", "조회 실패: " + e.getMessage(),
-                        "image", container.getImage(),
-                        "startedAt", "",
-                        "ports", Map.of(
-                                "hostPort", container.getHostPort(),
-                                "containerPort", container.getContainerPort())));
+                ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
+                        .hostPort(container.getHostPort())
+                        .containerPort(container.getContainerPort())
+                        .ttydHostPort(container.getTtydHostPort())
+                        .build();
+
+                ContainerStatusDto statusDto = ContainerStatusDto.builder()
+                        .containerId(container.getContainerId())
+                        .status("조회 실패: " + e.getMessage())
+                        .image(container.getImage())
+                        .startedAt("")
+                        .ports(portsDto)
+                        .build();
+                        
+                result.add(statusDto);
             }
         }
 
