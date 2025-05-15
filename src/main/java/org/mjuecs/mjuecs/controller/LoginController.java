@@ -27,7 +27,7 @@ public class LoginController {
             String token = studentService.login(loginDto);
 
             Cookie cookie = new Cookie("token", token);
-            cookie.setMaxAge(86400000);
+            cookie.setMaxAge(86400);
             cookie.setPath("/");
 
             response.addCookie(cookie);
