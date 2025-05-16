@@ -5,15 +5,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class ContainerStatusDto {
     private String containerId;
     private String status;
     private String image;
-    private Instant startedAt;
-    private int hostPort;
-    private int containerPort;
+    private String startedAt;
+//    private ContainerPortsDto ports;
+
+//    @Data
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class ContainerPortsDto {
+//        private int hostPort;
+//        private int containerPort;
+//        private int ttydHostPort;
+//    }
 }
