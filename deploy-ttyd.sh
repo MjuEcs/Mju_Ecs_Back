@@ -2,11 +2,14 @@
 
 CONTAINER_ID=$1       # 사용자가 접근할 컨테이너 ID
 PORT=$2               # 사용자가 접근할 포트
+USERNAME=$3           # 사용자가 접근할 사용자 학번
+PASSWORD=$4           # 사용자가 접근할 비밀번호 임의 생성
 
-if [ -z "$CONTAINER_ID" ] || [ -z "$PORT" ]; then
-  echo "Usage: $0 <container-id> <host-port>"
+if [ -z "$CONTAINER_ID" ] || [ -z "$PORT" ] || [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+  echo "Usage: $0 <container-id> <host-port> <username> <password>"
   exit 1
 fi
+
 
 docker rm -f ttyd-proxy-$PORT 2>/dev/null
 
@@ -18,4 +21,6 @@ docker run -d \
   --env LC_ALL=ko_KR.UTF-8 \
   --env TERM=xterm-256color \
   my-ttyd-docker \
-  ttyd --writable env LANG=ko_KR.UTF-8 LC_ALL=ko_KR.UTF-8 TERM=xterm-256color docker exec -it "$CONTAINER_ID" bash
+  ttyd --credential $USERNAME:$PASSWORD \
+       --writable env LANG=ko_KR.UTF-8 LC_ALL=ko_KR.UTF-8 TERM=xterm-256color \
+       docker exec -it "$CONTAINER_ID" bash
