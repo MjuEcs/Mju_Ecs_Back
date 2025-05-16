@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.github.docker-java:docker-java-api:3.5.0'
     implementation 'com.github.docker-java:docker-java-transport-okhttp:3.5.0'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1' // ✅ JAX-RS 필수
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 }
 

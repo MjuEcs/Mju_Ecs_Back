@@ -15,6 +15,9 @@ spring:
     secret: d2on37hrhod273mdh24o8mohd2438m4jx
   main:
     allow-bean-definition-overriding: true
+  redis:
+    host: localhost
+    port: 6379
 server:
   servlet:
     session:

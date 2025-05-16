@@ -208,82 +208,82 @@ public class DockerService {
         }
     }
 
-    // 컨테이너 상태 조회 (container Id 기반 조회)
-    public ResponseEntity<?> getContainerStatus(String containerId, Student student) {
-        ResponseEntity<?> validationResponse = validateContainerOwnership(containerId, student);
-        if (validationResponse != null) {
-            return validationResponse;
-        }
-
-        try {
-            InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
-            DockerContainer dockerContainer = dockerContainerRepository.findById(containerId).orElseThrow();
-
-            ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
-                    .hostPort(dockerContainer.getHostPort())
-                    .containerPort(dockerContainer.getContainerPort())
-                    .ttydHostPort(dockerContainer.getTtydHostPort())
-                    .build();
-
-            ContainerStatusDto statusDto = ContainerStatusDto.builder()
-                    .containerId(dockerContainer.getContainerId())
-                    .status(containerInfo.getState().getStatus())
-                    .image(dockerContainer.getImage())
-                    .startedAt(containerInfo.getState().getStartedAt())
-                    .ports(portsDto)
-                    .build();
-
-            return ResponseEntity.ok(List.of(statusDto));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("컨테이너 상태 조회 실패: " + e.getMessage());
-        }
-    }
-
-    public ResponseEntity<?> getAllContainerStatuses(Student student) {
-        List<DockerContainer> containers = dockerContainerRepository.findByStudent(student);
-        List<ContainerStatusDto> result = new ArrayList<>();
-
-        for (DockerContainer container : containers) {
-            try {
-                InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(container.getContainerId())
-                        .exec();
-
-                ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
-                        .hostPort(container.getHostPort())
-                        .containerPort(container.getContainerPort())
-                        .ttydHostPort(container.getTtydHostPort())
-                        .build();
-
-                ContainerStatusDto statusDto = ContainerStatusDto.builder()
-                        .containerId(container.getContainerId())
-                        .status(containerInfo.getState().getStatus())
-                        .image(container.getImage())
-                        .startedAt(containerInfo.getState().getStartedAt())
-                        .ports(portsDto)
-                        .build();
-
-                result.add(statusDto);
-            } catch (Exception e) {
-                ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
-                        .hostPort(container.getHostPort())
-                        .containerPort(container.getContainerPort())
-                        .ttydHostPort(container.getTtydHostPort())
-                        .build();
-
-                ContainerStatusDto statusDto = ContainerStatusDto.builder()
-                        .containerId(container.getContainerId())
-                        .status("조회 실패: " + e.getMessage())
-                        .image(container.getImage())
-                        .startedAt("")
-                        .ports(portsDto)
-                        .build();
-                        
-                result.add(statusDto);
-            }
-        }
-
-        return ResponseEntity.ok(result);
-    }
+//    // 컨테이너 상태 조회 (container Id 기반 조회)
+//    public ResponseEntity<?> getContainerStatus(String containerId, Student student) {
+//        ResponseEntity<?> validationResponse = validateContainerOwnership(containerId, student);
+//        if (validationResponse != null) {
+//            return validationResponse;
+//        }
+//
+//        try {
+//            InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
+//            DockerContainer dockerContainer = dockerContainerRepository.findById(containerId).orElseThrow();
+//
+//            ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
+//                    .hostPort(dockerContainer.getHostPort())
+//                    .containerPort(dockerContainer.getContainerPort())
+//                    .ttydHostPort(dockerContainer.getTtydHostPort())
+//                    .build();
+//
+//            ContainerStatusDto statusDto = ContainerStatusDto.builder()
+//                    .containerId(dockerContainer.getContainerId())
+//                    .status(containerInfo.getState().getStatus())
+//                    .image(dockerContainer.getImage())
+//                    .startedAt(containerInfo.getState().getStartedAt())
+//                    .ports(portsDto)
+//                    .build();
+//
+//            return ResponseEntity.ok(List.of(statusDto));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("컨테이너 상태 조회 실패: " + e.getMessage());
+//        }
+//    }
+//
+//    public ResponseEntity<?> getAllContainerStatuses(Student student) {
+//        List<DockerContainer> containers = dockerContainerRepository.findByStudent(student);
+//        List<ContainerStatusDto> result = new ArrayList<>();
+//
+//        for (DockerContainer container : containers) {
+//            try {
+//                InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(container.getContainerId())
+//                        .exec();
+//
+//                ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
+//                        .hostPort(container.getHostPort())
+//                        .containerPort(container.getContainerPort())
+//                        .ttydHostPort(container.getTtydHostPort())
+//                        .build();
+//
+//                ContainerStatusDto statusDto = ContainerStatusDto.builder()
+//                        .containerId(container.getContainerId())
+//                        .status(containerInfo.getState().getStatus())
+//                        .image(container.getImage())
+//                        .startedAt(containerInfo.getState().getStartedAt())
+//                        .ports(portsDto)
+//                        .build();
+//
+//                result.add(statusDto);
+//            } catch (Exception e) {
+//                ContainerStatusDto.ContainerPortsDto portsDto = ContainerStatusDto.ContainerPortsDto.builder()
+//                        .hostPort(container.getHostPort())
+//                        .containerPort(container.getContainerPort())
+//                        .ttydHostPort(container.getTtydHostPort())
+//                        .build();
+//
+//                ContainerStatusDto statusDto = ContainerStatusDto.builder()
+//                        .containerId(container.getContainerId())
+//                        .status("조회 실패: " + e.getMessage())
+//                        .image(container.getImage())
+//                        .startedAt("")
+//                        .ports(portsDto)
+//                        .build();
+//
+//                result.add(statusDto);
+//            }
+//        }
+//
+//        return ResponseEntity.ok(result);
+//    }
 
     public File downloadContainerFiles(String containerId) throws IOException {
         // Temporary directory to store copied files
@@ -304,7 +304,7 @@ public class DockerService {
         }
 
         // Create a zip file from the copied files
-        Path zipFile = Files.createTempFile( containerId + "-volume", ".zip"); // 
+        Path zipFile = Files.createTempFile( containerId + "-volume", ".zip"); //
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile.toFile()))) {
             Files.walk(tempDir).forEach(path -> {
                 try {

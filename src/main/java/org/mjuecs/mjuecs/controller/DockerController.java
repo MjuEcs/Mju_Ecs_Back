@@ -71,19 +71,19 @@ public class DockerController {
      * @param containerId (optional) 특정 컨테이너 ID
      * @return 컨테이너 상태 정보
      */
-    @GetMapping("/status")
-    public ResponseEntity<?> getContainerStatus(
-            @RequestParam(name = "containerId", required = false) String containerId) {
-
-        String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<Student> student = studentRepository.findById(studentId);
-
-        if (containerId != null && !containerId.isBlank()) {
-            return dockerService.getContainerStatus(containerId, student.get());
-        } else {
-            return dockerService.getAllContainerStatuses(student.get());
-        }
-    }
+//    @GetMapping("/status")
+//    public ResponseEntity<?> getContainerStatus(
+//            @RequestParam(name = "containerId", required = false) String containerId) {
+//
+//        String studentId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Optional<Student> student = studentRepository.findById(studentId);
+//
+//        if (containerId != null && !containerId.isBlank()) {
+//            return dockerService.getContainerStatus(containerId, student.get());
+//        } else {
+//            return dockerService.getAllContainerStatuses(student.get());
+//        }
+//    }
 
     @PostMapping("/start")
     public ResponseEntity<?> startContainer(@RequestParam("containerId") String containerId) {
