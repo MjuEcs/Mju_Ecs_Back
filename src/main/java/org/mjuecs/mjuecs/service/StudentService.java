@@ -41,7 +41,7 @@ public class StudentService {
         studentRepository.save(loggedIn);
 
         // 3. JWT 발급
-        return jwtToken.createJwt(dto.getStudentId(), dto.getName(), 86400000L);//하루치 토큰 기간
+        return jwtToken.createJwt(dto.getStudentId(), 86400000L);//하루치 토큰 기간
     }
 
     private boolean verifyWithExternalAuthServer(LoginDto dto) {

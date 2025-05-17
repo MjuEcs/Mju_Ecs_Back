@@ -26,7 +26,7 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(String studentId, String name, Long expiredMs) {
+    public String createJwt(String studentId, Long expiredMs) {
         return Jwts.builder()
                 .claim("studentId", studentId)
                 .issuedAt(new Date(System.currentTimeMillis()))
