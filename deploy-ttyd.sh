@@ -10,10 +10,10 @@ if [ -z "$CONTAINER_ID" ] || [ -z "$PORT" ]; then
   exit 1
 fi
 
-docker rm -f ttyd-proxy-$PORT 2>/dev/null
+docker rm -f ttyd-proxy-$CONTAINER_ID-$PORT 2>/dev/null
 
 docker run -d \
-  --name ttyd-proxy-$PORT \
+  --name ttyd-proxy-$CONTAINER_ID-$PORT \
   -p $PORT:7681 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --env LANG=ko_KR.UTF-8 \

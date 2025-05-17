@@ -56,18 +56,18 @@ public class TtydService {
 
             // Docker CLI로 실제 ttyd 컨테이너 ID를 확인
             Thread.sleep(1000); // 약간의 지연 필요
-            return waitForContainerId(port);
+            return waitForContainerId(containerId, port);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("ttyd 실행 실패", e);
         }
     }
 
-    private String waitForContainerId(int port) {
+    private String waitForContainerId(String containerId,int port) {
         return DockerClientFactory.createClient().listContainersCmd()
                 .withShowAll(true)
                 .exec()
                 .stream()
-                .filter(c -> Arrays.asList(c.getNames()).contains("/ttyd-proxy-" + port))
+                .filter(c -> Arrays.asList(c.getNames()).contains("/ttyd-proxy-" + containerId + "-" + port))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("ttyd 컨테이너 생성 실패"))
                 .getId();
