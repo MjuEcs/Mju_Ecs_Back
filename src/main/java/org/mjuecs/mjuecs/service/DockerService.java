@@ -113,7 +113,7 @@ public class DockerService {
             dockerContainer.setContainerPort(dto.getContainerPort()); // 내부 포트 저장
             dockerContainerRepository.save(dockerContainer);
 
-            ttydService.launchTtydAndSave(dockerContainer);
+            ttydService.launchTtydAndSave(dockerContainer,student);
 
             return container.getId(); // ✅ 사용자에게 URL 제공
         }

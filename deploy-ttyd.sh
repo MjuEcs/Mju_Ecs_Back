@@ -2,6 +2,8 @@
 
 CONTAINER_ID=$1       # 사용자가 접근할 컨테이너 ID
 PORT=$2               # 사용자가 접근할 포트
+USER=$3
+PASSWORD=$4
 
 if [ -z "$CONTAINER_ID" ] || [ -z "$PORT" ]; then
   echo "Usage: $0 <container-id> <host-port>"
@@ -18,4 +20,7 @@ docker run -d \
   --env LC_ALL=ko_KR.UTF-8 \
   --env TERM=xterm-256color \
   my-ttyd-docker \
-  ttyd --writable env LANG=ko_KR.UTF-8 LC_ALL=ko_KR.UTF-8 TERM=xterm-256color docker exec -it "$CONTAINER_ID" bash
+  ttyd \
+    --writable \
+    --credential $USER:$PASSWORD \
+    env LANG=ko_KR.UTF-8 LC_ALL=ko_KR.UTF-8 TERM=xterm-256color docker exec -it "$CONTAINER_ID" bash

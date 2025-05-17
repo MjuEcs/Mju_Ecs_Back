@@ -5,15 +5,16 @@ import lombok.RequiredArgsConstructor;
 import org.mjuecs.mjuecs.DockerClientFactory;
 import org.mjuecs.mjuecs.component.PortAccessManager;
 import org.mjuecs.mjuecs.domain.DockerContainer;
+import org.mjuecs.mjuecs.domain.Student;
 import org.mjuecs.mjuecs.domain.TtydContainer;
 import org.mjuecs.mjuecs.repository.DockerContainerRepository;
 import org.mjuecs.mjuecs.repository.TtydContainerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,15 +27,18 @@ public class TtydService {
 
 
 
-    public void launchTtydAndSave(DockerContainer dockerContainer) {
+    public void launchTtydAndSave(DockerContainer dockerContainer, Student student) {
         int ttydPort = portAllocator.allocatePort();
         String containerId = dockerContainer.getContainerId();
 
-        String ttydContainerId = runTtydProxy(containerId, ttydPort);
+        String passwd = UUID.randomUUID().toString().substring(0, 12);
+
+        String ttydContainerId = runTtydProxy(containerId, ttydPort, student.getStudentId(), passwd);
 
         TtydContainer ttyd = new TtydContainer();
         ttyd.setTtydContainerId(ttydContainerId);
         ttyd.setDockerContainer(dockerContainer);
+        ttyd.setTtydPasswd(passwd);
         ttydContainerRepository.save(ttyd);
 
         dockerContainer.setTtydHostPort(ttydPort);
@@ -43,9 +47,9 @@ public class TtydService {
         // portAccessManager.block(ttydPort);
     }
 
-    private String runTtydProxy(String containerId, int port) {
+    private String runTtydProxy(String containerId, int port, String studentId, String passwd) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "./deploy-ttyd.sh", containerId, String.valueOf(port));
+            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "./deploy-ttyd.sh", containerId, String.valueOf(port), studentId, passwd);
             pb.directory(new File("."));
             pb.redirectErrorStream(true);
             pb.start();
